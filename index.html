@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Wam Wam Utiti</title>
+<style>
+:root{
+  --bg:#F1F7FC; --card:#FFFFFF; --ink:#1F3B57; --muted:#5B7388; --line:#C9DCEB;
+  --accent:#E8863D; --accent-ink:#FFFFFF; --good:#2F8F46; --good-bg:#E3F5E8;
+  --bad:#C4452F; --bad-bg:#FCE9E5; --sky:#DCEEFA;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#10202E; --card:#18304A; --ink:#EAF3FB; --muted:#9DB6CB; --line:#2F4D6B;
+    --accent:#F0974F; --accent-ink:#1B1208; --good:#6FD08A; --good-bg:#17402A;
+    --bad:#FF9C86; --bad-bg:#4A2219; --sky:#1E3A55;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#10202E; --card:#18304A; --ink:#EAF3FB; --muted:#9DB6CB; --line:#2F4D6B;
+  --accent:#F0974F; --accent-ink:#1B1208; --good:#6FD08A; --good-bg:#17402A;
+  --bad:#FF9C86; --bad-bg:#4A2219; --sky:#1E3A55;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:"Avenir Next Rounded",ui-rounded,"Trebuchet MS","Segoe UI",system-ui,sans-serif;
+  font-size:19px;line-height:1.55}
+main{max-width:760px;margin:0 auto;padding:18px 16px 48px}
+h1{font-size:1.9rem;line-height:1.15;margin:6px 0 4px}
+.sub{margin:0 0 14px;color:var(--muted);font-size:.95rem}
+.bar{height:12px;background:var(--line);border-radius:99px;overflow:hidden}
+.bar>i{display:block;height:100%;width:0;background:var(--accent);border-radius:99px;transition:width .35s}
+.count{font-size:.9rem;color:var(--muted);margin:6px 0 18px}
+h2{font-size:1.25rem;margin:26px 0 10px}
+.card{background:var(--card);border:2px solid var(--line);border-radius:18px;padding:16px}
+.story{display:flex;gap:16px;align-items:center}
+.story p{margin:0;font-size:1.12rem;line-height:1.7}
+.story svg{flex:0 0 150px;width:150px;height:150px;border-radius:14px}
+.q{margin:14px 0}
+.q .t{font-weight:700;margin:0 0 10px}
+.choices{display:grid;gap:10px}
+.choice{font:inherit;text-align:left;width:100%;min-height:52px;padding:12px 14px;border-radius:14px;
+  border:2px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.choice:hover:not(:disabled){border-color:var(--accent)}
+.choice.ok{background:var(--good-bg);border-color:var(--good);font-weight:700}
+.choice.no{background:var(--bad-bg);border-color:var(--bad);opacity:.85}
+.choice:disabled{cursor:default}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:stretch}
+input[type=text]{font:inherit;font-size:1.3rem;width:130px;min-height:52px;padding:8px 12px;text-align:center;
+  border-radius:14px;border:2px solid var(--line);background:var(--card);color:var(--ink)}
+button.go,button.again{font:inherit;font-weight:700;min-height:52px;padding:10px 22px;border-radius:14px;border:0;
+  background:var(--accent);color:var(--accent-ink);cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.msg{min-height:1.6em;margin:8px 0 0;font-weight:700}
+.msg.ok{color:var(--good)} .msg.no{color:var(--bad)}
+.hint{margin:4px 0 0;color:var(--muted);font-size:.95rem}
+.done{display:none;text-align:center;margin-top:26px;border-color:var(--accent)}
+.done h2{margin-top:0}
+.done.show{display:block}
+.menu{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.tile{font:inherit;text-align:left;min-height:84px;padding:14px;border-radius:16px;border:2px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;display:flex;gap:12px;align-items:center}
+.tile:hover:not(:disabled){border-color:var(--accent)}
+.tile:disabled{opacity:.55;cursor:default}
+.tile b{display:block;font-size:1.05rem}.tile small{color:var(--muted)}
+.tile .ic{font-size:2rem}
+button.back{font:inherit;background:none;border:0;color:var(--ink);text-decoration:underline;cursor:pointer;padding:8px 0;min-height:44px}
+.me{display:flex;align-items:center;gap:10px;margin:0 0 8px;flex-wrap:wrap}
+.me svg{width:52px;height:52px;flex:0 0 52px}.me b{font-size:1.1rem}
+.stars{font-size:1.8rem;letter-spacing:4px;margin:0 0 8px;color:var(--accent)}
+.tile.ch{flex-direction:column;justify-content:center;text-align:center;min-height:150px}.tile.ch svg{width:96px;height:96px}#whoList{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.tile small.st{color:var(--accent);font-size:1rem;letter-spacing:2px}
+button.again.alt{background:var(--card);color:var(--ink);border:2px solid var(--accent)}
+.story>div:first-child{flex:1}
+.spk{font:inherit;min-height:44px;padding:8px 14px;border-radius:14px;border:2px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;margin-top:10px}
+.spk.ico{min-width:48px;padding:6px 10px;margin:0;flex:0 0 auto}
+.spk.on{border-color:var(--accent);background:var(--sky)}
+.qt{display:flex;gap:10px;align-items:flex-start;justify-content:space-between}
+.qt .t{margin:0 0 10px}
+.pl{margin:8px 0 14px}
+.pl p{margin:2px 0;font-size:.95rem}
+@media (max-width:520px){.story{flex-direction:column-reverse}.story svg{flex-basis:auto}}
+@media (prefers-reduced-motion:reduce){.bar>i{transition:none}}
+</style>
+</head>
+<body>
+<main>
+  <section id="who" hidden>
+    <h1>Qui joue?</h1>
+    <p class="sub">Choisis ton personnage. Il garde tes étoiles et les questions à revoir.</p>
+    <div class="menu" id="whoList"></div>
+    <p><button class="back" id="parentLink2" type="button">Espace parents</button></p>
+  </section>
+  <section id="menu" hidden>
+    <div class="me"><span id="meIcon"></span><b id="meName"></b><button class="back" id="chg" type="button">Changer de personnage</button></div>
+    <h1>Wam Wam Utiti</h1>
+    <p class="sub">Choisis une fiche. Les questions changent à chaque fois!</p>
+    <div id="menuList"></div>
+    <p><button class="back" id="parentLink" type="button">Espace parents</button></p>
+  </section>
+  <section id="sheet" hidden>
+    <button class="back" id="back" type="button">← Retour au menu</button>
+    <h1 id="title"></h1>
+    <p class="sub" id="lvl"></p>
+    <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="7" aria-valuenow="0" id="bar"><i id="fill"></i></div>
+    <p class="count" id="count">0 sur 7</p>
+    <h2 id="readHead">Lecture</h2>
+    <div class="card story"><div><p id="story"></p><button class="spk" id="spkStory" type="button" hidden>🔊 Écouter l’histoire</button></div><div id="pic"></div></div>
+    <div id="reading"></div>
+    <h2 id="mathHead">Mathématique</h2>
+    <div id="math"></div>
+    <div class="card done" id="done" aria-live="polite">
+      <h2 id="doneTitle">Bravo!</h2>
+      <p class="stars" id="stars" aria-live="polite"></p>
+      <p id="doneText"></p>
+      <button class="again" id="retry" type="button" hidden>Revoir les questions ratées</button>
+      <button class="again" id="again" type="button">Nouvelles questions</button>
+      <button class="back" id="menu2" type="button">Retour au menu</button>
+    </div>
+  </section>
+  <section id="gate" hidden>
+    <button class="back" id="gateBack" type="button">← Retour</button>
+    <h1>Espace parents</h1>
+    <p class="sub" id="gateQ"></p>
+    <div class="row"><input id="gateIn" type="text" inputmode="numeric" autocomplete="off" aria-label="Réponse"><button class="go" id="gateGo" type="button">Entrer</button></div>
+    <p class="msg no" id="gateMsg" aria-live="polite"></p>
+  </section>
+  <section id="parent" hidden>
+    <button class="back" id="parentBack" type="button">← Retour</button>
+    <h1>Espace parents</h1>
+    <p class="sub">Les résultats restent sur cet appareil. Rien n’est envoyé ailleurs.</p>
+    <div id="parentList"></div>
+    <p><button class="again alt" id="wipeAll" type="button">Tout effacer</button></p>
+  </section>
+</main>
+<script>
+function ri(a, b){ return a + Math.floor(Math.random() * (b - a + 1)); }
+function R(q, a, w){ return {q:q, a:a, w:w}; }
+function who(){var a=[['Léa','elle'],['Noah','il'],['Emma','elle'],['Zoé','elle'],['Adam','il'],['Mia','elle'],['Hugo','il'],['Jade','elle']][ri(0,7)];return {n:a[0],p:a[1],P:a[1].charAt(0).toUpperCase()+a[1].slice(1)};}
+function storiesOf(sh){return [{text:sh.text,reading:sh.reading}].concat(sh.more||[]);}
+function ad(){var t1=ri(1,4),t2=ri(1,4),u1=ri(1,8),u2=ri(1,9-u1);return [10*t1+u1,10*t2+u2];}
+function sb(){var t1=ri(3,9),u1=ri(1,9),t2=ri(1,t1-1),u2=ri(0,u1);return [10*t1+u1,10*t2+u2];}
+var SHEETS = [
+ {id:"cabane", lvl:"3e année", title:"À la cabane à sucre", icon:"🍁", ready:true, label:'Une cabane à sucre avec un érable et un seau',
+  svg:`<svg viewBox='0 0 150 150'><rect x='1' y='1' width='148' height='148' rx='10' fill='var(--sky)'/><path d='M2 118 Q40 104 75 114 T148 110 V147 H2Z' fill='#FFFFFF'/><rect x='62' y='72' width='64' height='44' fill='#B77B4A' stroke='#5C3D24' stroke-width='2'/><polygon points='55,74 94,45 133,74' fill='#8A4F2B' stroke='#5C3D24' stroke-width='2'/><rect x='108' y='50' width='9' height='18' fill='#9C6A44' stroke='#5C3D24' stroke-width='1.5'/><circle cx='113' cy='42' r='5' fill='#FFFFFF' opacity='.9'/><circle cx='119' cy='33' r='6' fill='#FFFFFF' opacity='.8'/><circle cx='113' cy='22' r='5' fill='#FFFFFF' opacity='.7'/><rect x='88' y='90' width='16' height='26' fill='#5C3D24'/><rect x='70' y='84' width='14' height='14' fill='#FFE8A3' stroke='#5C3D24' stroke-width='1.5'/><rect x='24' y='70' width='12' height='46' fill='#A9744F' stroke='#5C3D24' stroke-width='1.5'/><g stroke='#5C3D24' stroke-width='3' stroke-linecap='round'><line x1='30' y1='72' x2='13' y2='46'/><line x1='30' y1='72' x2='47' y2='44'/><line x1='30' y1='70' x2='30' y2='36'/></g><line x1='36' y1='88' x2='44' y2='92' stroke='#555555' stroke-width='3'/><circle cx='46' cy='96' r='2' fill='#6FB7E9'/><polygon points='38,100 56,100 54,116 40,116' fill='#C9D1D8' stroke='#4C5963' stroke-width='1.5'/></svg>`,
+  text:"Chaque printemps, la famille de Léa visite la cabane à sucre de son oncle. Dans la forêt, il y a beaucoup d’érables. Son oncle perce un petit trou dans chaque arbre et y installe un seau. Goutte après goutte, l’eau d’érable coule dans le seau. Ensuite, on la fait bouillir dans un grand chaudron pour en faire du sirop. Léa adore le sirop, surtout sur une crêpe chaude!",
+  reading:[
+   R("À qui appartient la cabane à sucre?","À l’oncle de Léa",["À la grand-mère de Léa","À l’école de Léa"]),
+   R("Où se trouvent les érables?","Dans la forêt",["Dans un jardin","Au bord d’un lac"]),
+   R("Dans quoi coule l’eau d’érable?","Dans un seau",["Dans une bouteille","Dans une tasse"]),
+   R("Que pense Léa du sirop d’érable?","Elle l’adore.",["Elle ne l’aime pas.","Elle le trouve trop chaud."]),
+   R("Quand la famille de Léa visite-t-elle la cabane à sucre?","Au printemps",["En été","En hiver"]),
+   R("Que fait l’oncle de Léa dans chaque arbre?","Il perce un petit trou et installe un seau.",["Il coupe l’arbre en morceaux.","Il plante une petite graine."]),
+   R("Que fait-on avec l’eau d’érable pour obtenir du sirop?","On la fait bouillir dans un grand chaudron.",["On la met au congélateur.","On la mélange avec du lait froid."]),
+   R("Qu’est-ce que Léa aime manger avec le sirop?","Une crêpe chaude",["Un sandwich","Une pizza"]),
+   R("Que veut dire « goutte après goutte »?","Une goutte à la fois, lentement",["Toute l’eau tombe d’un coup","Il pleut beaucoup"]),
+   R("Pourquoi l’oncle perce-t-il un trou dans l’arbre?","Pour laisser couler l’eau d’érable",["Pour cacher un trésor","Pour construire un nid"]),
+   R("Vrai ou faux? La famille de Léa visite la cabane à l’automne.","Faux",["Vrai"]),
+   R("Quel serait un bon titre pour cette histoire?","Une visite à la cabane à sucre",["Une journée à la plage","Le grand match de hockey"])
+  ],
+  more:[
+   {text:'Samedi, Hugo et sa grand-mère visitent la cabane à sucre. Il y a encore un peu de neige dans la forêt, mais le soleil est chaud. Hugo aide à vider les seaux pleins d’eau d’érable dans un grand bidon. De la fumée blanche sort de la cheminée de la cabane. À l’intérieur, un cuisinier prépare une omelette et du jambon. Pour dessert, Hugo mange de la tarte au sucre. Il lèche ses doigts collants!',
+    reading:[
+     R('Qui visite la cabane à sucre avec Hugo?','Sa grand-mère',['Son grand-père','Sa tante']),
+     R('Quel jour Hugo visite-t-il la cabane à sucre?','Samedi',['Mardi','Jeudi']),
+     R('Que reste-t-il dans la forêt?','Un peu de neige',['Beaucoup de feuilles','Des fleurs']),
+     R('Que fait Hugo avec les seaux pleins?','Il les vide dans un grand bidon.',['Il les lance en l’air.','Il les cache sous la neige.']),
+     R('Que sort de la cheminée de la cabane?','De la fumée blanche',['Des étincelles rouges','Des ballons']),
+     R('Qui prépare le repas à l’intérieur?','Un cuisinier',['Un pompier','Un facteur']),
+     R('Que prépare le cuisinier?','Une omelette et du jambon',['Des spaghettis','Une soupe aux légumes']),
+     R('Quel est le dessert de Hugo?','De la tarte au sucre',['De la crème glacée','Un gâteau au chocolat']),
+     R('Pourquoi Hugo lèche-t-il ses doigts?','Ils sont collants.',['Ils sont froids.','Ils sont mouillés de pluie.']),
+     R('Que veut dire « collants »?','Qui restent attachés quand on les touche',['Qui sont très froids','Qui sont très rapides']),
+     R('Vrai ou faux? Hugo visite la cabane à sucre en été.','Faux',['Vrai']),
+     R('Quel titre conviendrait le mieux à l’histoire de Hugo?','Un samedi sucré à la cabane',['Une soirée au cinéma','Un match de soccer'])
+    ]},
+   {text:'Mathis visite la cabane à sucre avec sa classe. L’autobus roule sur un chemin de terre entre les grands arbres. Un guide montre aux élèves comment couler la tire d’érable sur la neige propre. Chaque élève reçoit un bâtonnet pour l’enrouler. Mathis trouve que la tire est un peu trop sucrée! Avant de partir, la classe fait une photo devant la cabane.',
+    reading:[
+     R('Avec qui Mathis visite-t-il la cabane à sucre?','Avec sa classe',['Avec sa famille','Avec son équipe de hockey']),
+     R('Comment les élèves se rendent-ils à la cabane?','En autobus',['En train','En bateau']),
+     R('Sur quel genre de chemin l’autobus roule-t-il?','Un chemin de terre',['Une autoroute','Un chemin de glace']),
+     R('Qui montre aux élèves comment couler la tire?','Un guide',['Le directeur','Le conducteur']),
+     R('Où coule-t-on la tire d’érable?','Sur la neige propre',['Dans un grand verre','Sur du pain grillé']),
+     R('Que reçoit chaque élève?','Un bâtonnet',['Une fourchette','Une cuillère']),
+     R('Que fait-on avec le bâtonnet?','On enroule la tire dessus.',['On le plante dans un arbre.','On le lance dans la forêt.']),
+     R('Que pense Mathis de la tire d’érable?','Elle est un peu trop sucrée.',['Elle n’a aucun goût.','Elle est trop salée.']),
+     R('Que fait la classe avant de partir?','Une photo devant la cabane',['Un match de soccer','Une chanson dans l’autobus']),
+     R('Que veut dire « enrouler »?','Tourner autour de quelque chose',['Casser en petits morceaux','Jeter par terre']),
+     R('Vrai ou faux? Mathis visite la cabane avec sa famille.','Faux',['Vrai']),
+     R('Quel titre conviendrait le mieux à l’histoire de Mathis?','Une sortie de classe à la cabane à sucre',['Une journée à la plage','Un voyage dans l’espace'])
+    ]}
+  ],
+  math:[
+   function(){var r=ri(2,6),t=ri(3,8);return {q:'Dans la forêt, il y a '+r+' rangées de '+t+' érables. Combien y a-t-il d’érables en tout?',a:r*t,hint:'Essaie d’additionner : '+Array(r).fill(t).join(' + ')+'.'};},
+   function(){var w=who(),a=ri(21,59),b=ri(15,38);return {q:w.n+' aide à installer des seaux. Le matin, '+w.p+' en installe '+a+'. L’après-midi, '+w.p+' en installe '+b+'. Combien de seaux a-t-'+w.p+' installés en tout?',a:a+b,hint:'Additionne d’abord les unités ('+a%10+' + '+b%10+'), puis les dizaines.'};},
+   function(){var w=who(),it=['crêpes','biscuits','bonbons à l’érable','tranches de pain','saucisses'][ri(0,4)],a=ri(10,18),b=ri(3,9);return {q:w.n+' a '+a+' '+it+'. '+w.P+' en mange '+b+'. Combien de '+it+' lui reste-t-il?',a:a-b,hint:'Enlève '+b+' de '+a+'.'};},
+   function(){var t=ri(3,7),p=ri(4,8),v=ri(0,2);var q=v===0?'À la cabane, il y a '+t+' tables. Il y a '+p+' personnes autour de chaque table. Combien y a-t-il de personnes en tout?':(v===1?'Il y a '+t+' bancs. Il y a '+p+' enfants sur chaque banc. Combien y a-t-il d’enfants en tout?':'Il y a '+t+' chaudrons. Chaque chaudron contient '+p+' litres de sirop. Combien y a-t-il de litres en tout?');return {q:q,a:t*p,hint:'Essaie d’additionner : '+Array(t).fill(p).join(' + ')+'.'};},
+   function(){var a=ri(30,59),b=ri(21,39),v=ri(0,1);return {q:v?'L’érablière a produit '+a+' litres de sirop lundi et '+b+' litres mardi. Combien de litres a-t-elle produits en tout?':'On a récolté '+a+' litres d’eau d’érable le matin et '+b+' litres l’après-midi. Combien de litres a-t-on récoltés en tout?',a:a+b,hint:'Additionne d’abord les unités ('+a%10+' + '+b%10+'), puis les dizaines.'};},
+   function(){var c=['bidon','baril','chaudron'][ri(0,2)],a=ri(51,95),b=ri(12,39);return {q:'Le '+c+' contient '+a+' litres d’eau d’érable. On en verse '+b+' litres dans des bouteilles. Combien de litres reste-t-il dans le '+c+'?',a:a-b,hint:'Enlève d’abord les dizaines, puis les unités.'};},
+   function(){var a=ri(12,45),b=ri(8,36);return {q:'Il y a '+a+' pots de sirop sur une étagère et '+b+' pots sur une autre. Combien y a-t-il de pots en tout?',a:a+b,hint:'Additionne les dizaines, puis les unités.'};},
+   function(){var p=ri(5,9),n=ri(2,4);return {q:'Un pot de sirop coûte '+p+' $. On en achète '+n+'. Combien faut-il payer en tout?',a:p*n,hint:'Essaie d’additionner : '+Array(n).fill(p).join(' + ')+'.'};},
+   function(){var a=ri(120,360),b=ri(110,290);return {q:'En mars, la cabane produit '+a+' litres de sirop. En avril, elle en produit '+b+'. Combien de litres de sirop produit-elle en tout?',a:a+b,hint:'Additionne les unités, puis les dizaines, puis les centaines.'};},
+   function(){var n=ri(2,5),p=ri(3,8);return {q:'On remplit '+n+' paniers de tire d’érable. Chaque panier contient '+p+' morceaux. Combien y a-t-il de morceaux en tout?',a:n*p,hint:'Essaie d’additionner : '+Array(n).fill(p).join(' + ')+'.'};},
+   function(){var a=ri(21,49),b=ri(15,38);return {q:'Lundi, on entaille '+a+' arbres. Mardi, on en entaille '+b+'. Combien d’arbres a-t-on entaillés en tout?',a:a+b,hint:'Additionne d’abord les unités ('+a%10+' + '+b%10+'), puis les dizaines.'};},
+   function(){var a=ri(40,90),b=ri(12,35);return {q:'Il y a '+a+' érables dans le boisé. Il y a '+b+' érables qui n’ont pas encore de seau. Combien d’érables ont un seau?',a:a-b,hint:'Enlève d’abord les dizaines, puis les unités.'};}
+  ],
+  },
+ {id:"patinoire", lvl:"3e année", title:"À la patinoire", ready:true, label:"Un patin à glace sur la patinoire",
+  svg:'<svg viewBox="0 0 150 150"><rect x="1" y="1" width="148" height="148" rx="10" fill="var(--sky)"/><g transform="translate(0,150) scale(1,-1)"><rect x="2" y="2" width="146" height="40" fill="#D6EEFA"/><line x1="10" y1="22" x2="70" y2="18" stroke="#fff" stroke-width="2"/><line x1="85" y1="12" x2="140" y2="16" stroke="#fff" stroke-width="2"/><polygon points="45,100 45,60 70,58 78,72 110,70 112,86 100,92 62,95 62,100" fill="#fff" stroke="#34495E" stroke-width="2"/><rect x="45" y="100" width="17" height="16" fill="#E8863D" stroke="#34495E" stroke-width="1.5"/><line x1="52" y1="66" x2="66" y2="69" stroke="#34495E" stroke-width="1.3"/><line x1="52" y1="74" x2="66" y2="77" stroke="#34495E" stroke-width="1.3"/><line x1="52" y1="82" x2="66" y2="85" stroke="#34495E" stroke-width="1.3"/><line x1="52" y1="90" x2="66" y2="93" stroke="#34495E" stroke-width="1.3"/><rect x="40" y="48" width="76" height="5" fill="#C9D1D8" stroke="#34495E" stroke-width="1.5"/><line x1="52" y1="53" x2="52" y2="60" stroke="#34495E" stroke-width="2"/><line x1="104" y1="53" x2="106" y2="70" stroke="#34495E" stroke-width="2"/></g></svg>',
+  text:"Samedi matin, Noah et sa sœur Camille vont à la patinoire du quartier. Il fait très froid, alors ils mettent leur tuque, leurs mitaines et un gros manteau. Noah lace ses patins bien serré. Camille tombe deux fois, mais elle se relève en riant. Après une heure sur la glace, ils boivent un chocolat chaud pour se réchauffer.",
+  reading:[
+   R("Qui accompagne Noah à la patinoire?","Sa sœur Camille",["Son ami Adam","Sa cousine Léa"]),
+   R("Quel jour Noah et Camille vont-ils à la patinoire?","Samedi",["Lundi","Dimanche"]),
+   R("À quel moment de la journée vont-ils à la patinoire?","Le matin",["Le soir","La nuit"]),
+   R("Comment est la température ce jour-là?","Il fait très froid.",["Il fait très chaud.","Il pleut beaucoup."]),
+   R("Que fait Noah avec ses patins?","Il les lace bien serré.",["Il les perd.","Il les lance dans les airs."]),
+   R("Combien de fois Camille tombe-t-elle?","Deux fois",["Une fois","Cinq fois"]),
+   R("Comment Camille réagit-elle quand elle tombe?","Elle se relève en riant.",["Elle pleure et rentre à la maison.","Elle refuse de patiner."]),
+   R("Combien de temps Noah et Camille patinent-ils?","Une heure",["Dix minutes","Toute la journée"]),
+   R("Pourquoi boivent-ils un chocolat chaud?","Pour se réchauffer",["Pour se réveiller","Pour se rafraîchir"]),
+   R("Que mettent-ils pour avoir chaud?","Une tuque, des mitaines et un gros manteau",["Un maillot de bain et des sandales","Un chandail court et un short"]),
+   R("Que veut dire « se réchauffer »?","Devenir moins froid",["Devenir plus fatigué","Devenir plus pressé"]),
+   R("Vrai ou faux? Noah et Camille vont à la patinoire du quartier.","Vrai",["Faux"]),
+   R("Quel serait un bon titre pour cette histoire?","Une matinée sur la glace",["Un voyage à la plage","Une fête d’anniversaire"])
+  ],
+  more:[
+   {text:'Lundi soir, Éloïse va à l’aréna avec son père pour jouer au hockey. Elle enfile son casque, ses gants et ses jambières. Son père attache ses patins et lui donne son bâton. Sur la glace, Éloïse passe la rondelle à son amie Sara. Sara tire et marque un but! Toute l’équipe applaudit. Après la partie, Éloïse boit de l’eau et range son équipement dans un grand sac.',
+    reading:[
+     R('Avec qui Éloïse va-t-elle à l’aréna?','Avec son père',['Avec sa tante','Avec son frère']),
+     R('Quand Éloïse va-t-elle à l’aréna?','Lundi soir',['Samedi matin','Mardi midi']),
+     R('Pourquoi Éloïse va-t-elle à l’aréna?','Pour jouer au hockey',['Pour nager','Pour faire ses devoirs']),
+     R('Qu’enfile Éloïse sur sa tête?','Un casque',['Une casquette','Un chapeau de paille']),
+     R('Qui attache les patins d’Éloïse?','Son père',['Son amie Sara','L’entraîneur']),
+     R('Qu’est-ce que le père d’Éloïse lui donne?','Son bâton',['Son sac','Sa gourde']),
+     R('À qui Éloïse passe-t-elle la rondelle?','À son amie Sara',['À son père','À l’entraîneur']),
+     R('Que fait Sara?','Elle tire et marque un but.',['Elle tombe et pleure.','Elle quitte la glace.']),
+     R('Que fait toute l’équipe après le but?','Elle applaudit.',['Elle pleure.','Elle dort.']),
+     R('Que veut dire « marque un but »?','Envoie la rondelle dans le filet',['Perd son bâton','Quitte le jeu']),
+     R('Où Éloïse range-t-elle son équipement?','Dans un grand sac',['Dans un petit tiroir','Sur la glace']),
+     R('Vrai ou faux? Éloïse joue au hockey toute seule.','Faux',['Vrai']),
+     R('Quel titre conviendrait le mieux à l’histoire d’Éloïse?','Une soirée de hockey à l’aréna',['Une journée à la plage','Un voyage en autobus'])
+    ]},
+   {text:'Yanis apprend à patiner pour la première fois. Il tient la bande de la patinoire avec ses deux mains. Son moniteur lui montre comment plier les genoux et glisser un pied à la fois. Yanis tombe trois fois, mais il ne lâche pas. À la fin du cours, il patine tout seul jusqu’au centre de la glace. Il lève les bras bien haut et sourit fièrement!',
+    reading:[
+     R('Qu’apprend Yanis?','À patiner',['À nager','À skier']),
+     R('Est-ce la première fois que Yanis patine?','Oui',['Non']),
+     R('Que tient Yanis avec ses deux mains au début?','La bande de la patinoire',['Un bâton de hockey','Un ballon']),
+     R('Qui montre à Yanis comment patiner?','Son moniteur',['Son grand frère','Son voisin']),
+     R('Que doit-il plier pour patiner?','Les genoux',['Les bras','Le cou']),
+     R('Comment Yanis glisse-t-il?','Un pied à la fois',['Les deux pieds ensemble','Sur le ventre']),
+     R('Combien de fois Yanis tombe-t-il?','Trois fois',['Deux fois','Dix fois']),
+     R('Que fait Yanis après être tombé?','Il ne lâche pas.',['Il abandonne.','Il quitte la glace en pleurant.']),
+     R('Où Yanis patine-t-il à la fin du cours?','Jusqu’au centre de la glace',['Jusqu’à la porte','Jusqu’au vestiaire']),
+     R('Que fait Yanis à la fin du cours?','Il lève les bras et sourit.',['Il enlève ses patins.','Il se cache.']),
+     R('Que veut dire « fièrement »?','Avec de la fierté',['Avec de la peur','Avec de l’ennui']),
+     R('Vrai ou faux? Yanis patine tout seul à la fin du cours.','Vrai',['Faux']),
+     R('Quel titre conviendrait le mieux à l’histoire de Yanis?','Les premiers pas de Yanis sur la glace',['Un match de soccer','Une promenade en forêt'])
+    ]}
+  ],
+  math:[
+   function(){var t=ri(2,6),p=ri(3,8),v=ri(0,1);return {q:v?'Il y a '+t+' groupes de '+p+' patineurs sur la glace. Combien y a-t-il de patineurs en tout?':'Sur la patinoire, il y a '+t+' équipes de '+p+' enfants. Combien d’enfants y a-t-il en tout?',a:t*p,hint:'Essaie d’additionner : '+Array(t).fill(p).join(' + ')+'.'};},
+   function(){var w=who(),a=ri(100,250),b=ri(100,199);return {q:w.n+' a patiné '+a+' mètres avant la pause et '+b+' mètres après la pause. Combien de mètres a-t-'+w.p+' patinés en tout?',a:a+b,hint:'Additionne les unités, puis les dizaines, puis les centaines.'};},
+   function(){var a=ri(20,35),b=ri(6,12);return {q:'Il y avait '+a+' enfants sur la patinoire. Ensuite, '+b+' enfants sont partis. Combien d’enfants y en a-t-il maintenant?',a:a-b,hint:'Enlève '+b+' de '+a+'.'};},
+   function(){var r=ri(3,6),p=ri(4,8);return {q:'Dans le vestiaire, il y a '+r+' rangées de '+p+' casiers. Combien y a-t-il de casiers en tout?',a:r*p,hint:'Essaie d’additionner : '+Array(r).fill(p).join(' + ')+'.'};},
+   function(){var w=who(),a=ri(25,55),b=ri(15,38);return {q:w.n+' a patiné '+a+' minutes le matin et '+b+' minutes l’après-midi. Combien de minutes a-t-'+w.p+' patiné en tout?',a:a+b,hint:'Additionne d’abord les unités ('+a%10+' + '+b%10+'), puis les dizaines.'};},
+   function(){var it=['tasses de chocolat chaud','verres de lait','gobelets de jus'][ri(0,2)],a=ri(51,90),b=ri(12,38);return {q:'Il y a '+a+' '+it+' à servir. On en sert '+b+'. Combien de '+it+' reste-t-il?',a:a-b,hint:'Enlève d’abord les dizaines, puis les unités.'};},
+   function(){var p=ri(2,4),n=ri(2,5);return {q:'Un chocolat chaud coûte '+p+' $. On en achète '+n+' pour les amis. Combien faut-il payer en tout?',a:p*n,hint:'Essaie d’additionner : '+Array(n).fill(p).join(' + ')+'.'};},
+   function(){var a=ri(30,59),b=ri(21,39);return {q:'Au match, il y a '+a+' spectateurs dans les estrades de gauche et '+b+' dans celles de droite. Combien y a-t-il de spectateurs en tout?',a:a+b,hint:'Additionne d’abord les unités ('+a%10+' + '+b%10+'), puis les dizaines.'};},
+   function(){var n=ri(2,5);return {q:'Une équipe de hockey a 6 joueurs sur la glace. Il y a '+n+' équipes. Combien de joueurs y a-t-il sur la glace en tout?',a:6*n,hint:'Essaie d’additionner : '+Array(n).fill(6).join(' + ')+'.'};},
+   function(){var a=ri(45,60),b=ri(12,29);return {q:'Le match dure '+a+' minutes. Il reste '+b+' minutes. Combien de minutes se sont écoulées?',a:a-b,hint:'Enlève d’abord les dizaines, puis les unités.'};},
+   function(){var a=ri(120,380),b=ri(110,290);return {q:'En décembre, '+a+' visiteurs viennent à la patinoire. En janvier, '+b+' visiteurs y viennent. Combien de visiteurs y a-t-il en tout?',a:a+b,hint:'Additionne les unités, puis les dizaines, puis les centaines.'};},
+   function(){var w=who(),a=ri(10,18),b=ri(3,9);return {q:w.n+' a '+a+' rondelles. '+w.P+' en perd '+b+'. Combien de rondelles lui reste-t-il?',a:a-b,hint:'Enlève '+b+' de '+a+'.'};}
+  ],
+  
+  icon:"⛸️"},
+ {id:'marche', lvl:'3e année', title:'Au marché', ready:true, label:'Un étal de marché avec des pommes et une citrouille',
+  svg:`<svg viewBox='0 0 150 150'><rect x='1' y='1' width='148' height='148' rx='10' fill='var(--sky)'/><rect x='2' y='118' width='146' height='29' fill='#E9D9B8'/><line x1='22' y1='46' x2='22' y2='120' stroke='#6B4A24' stroke-width='4'/><line x1='128' y1='46' x2='128' y2='120' stroke='#6B4A24' stroke-width='4'/><g stroke='#7E1F1A' stroke-width='1.5'><rect x='14' y='20' width='24' height='28' fill='#E5473F'/><rect x='38' y='20' width='24' height='28' fill='#FFFFFF'/><rect x='62' y='20' width='24' height='28' fill='#E5473F'/><rect x='86' y='20' width='24' height='28' fill='#FFFFFF'/><rect x='110' y='20' width='26' height='28' fill='#E5473F'/></g><rect x='14' y='92' width='122' height='28' fill='#C79A62' stroke='#6B4A24' stroke-width='2'/><ellipse cx='104' cy='80' rx='18' ry='13' fill='#F28C28' stroke='#B35A12' stroke-width='1.8'/><path d='M104 67 Q94 80 104 93 M104 67 Q114 80 104 93' fill='none' stroke='#B35A12' stroke-width='1.3'/><rect x='101' y='60' width='6' height='8' fill='#5C7A2B'/><g fill='#E5473F' stroke='#8E1F1A' stroke-width='1.4'><circle cx='36' cy='82' r='10'/><circle cx='56' cy='82' r='10'/><circle cx='76' cy='82' r='10'/><circle cx='46' cy='68' r='10'/><circle cx='66' cy='68' r='10'/></g></svg>`,
+  
+  text:'Le dimanche, Papa emmène Adam au marché public. Il y a des fruits, des légumes, du pain et des fleurs. Adam aime les pommes rouges et croquantes du verger de monsieur Roy. Papa choisit aussi une grosse citrouille pour décorer la maison. Avant de partir, Adam goûte une tarte aux pommes encore tiède. Quel délice!',
+  reading:[
+   R('Quel jour Papa et Adam vont-ils au marché?','Dimanche',['Lundi','Samedi']),
+   R('Où vont Papa et Adam?','Au marché public',['Au centre commercial','À l’épicerie']),
+   R('Que trouve-t-on au marché?','Des fruits, des légumes, du pain et des fleurs',['Des voitures et des vélos','Des livres et des jouets']),
+   R('Comment sont les pommes qu’Adam aime?','Rouges et croquantes',['Vertes et molles','Jaunes et sucrées']),
+   R('De quel verger viennent les pommes?','Du verger de monsieur Roy',['Du verger de monsieur Lavoie','Du verger de l’école']),
+   R('Que choisit Papa pour décorer la maison?','Une grosse citrouille',['Une petite lampe','Un grand miroir']),
+   R('Pourquoi Papa achète-t-il une citrouille?','Pour décorer la maison',['Pour la donner au voisin','Pour jouer au ballon']),
+   R('Que goûte Adam avant de partir?','Une tarte aux pommes',['Un gâteau au chocolat','Un biscuit à l’avoine']),
+   R('Comment est la tarte aux pommes?','Encore tiède',['Très froide','Brûlante']),
+   R('Que veut dire « croquantes »?','Qui font du bruit quand on les croque',['Qui sont très molles','Qui sont très grosses']),
+   R('Que veut dire « Quel délice! »?','C’était très bon.',['C’était trop salé.','C’était trop long.']),
+   R('Vrai ou faux? Adam va seul au marché.','Faux',['Vrai']),
+   R('Quel serait un bon titre pour cette histoire?','Une sortie au marché public',['Une journée à l’école','Une visite au zoo'])
+  ],
+  more:[
+   {text:'Samedi matin, Chloé accompagne sa grand-mère au marché. Elles s’arrêtent devant un étal rayé rouge et blanc. Le marchand vend des citrouilles, des pommes et du miel. Chloé choisit trois citrouilles pour l’Halloween. Sa grand-mère achète un pot de miel pour le déjeuner. Le marchand met tous les achats dans un grand sac en toile. Chloé le remercie avec un grand sourire.',
+    reading:[
+     R('Avec qui Chloé va-t-elle au marché?','Sa grand-mère',['Son père','Son oncle']),
+     R('Quand Chloé va-t-elle au marché?','Samedi matin',['Dimanche soir','Lundi midi']),
+     R('Devant quoi Chloé et sa grand-mère s’arrêtent-elles?','Un étal rayé rouge et blanc',['Une fontaine bleue','Un camion jaune']),
+     R('Que vend le marchand?','Des citrouilles, des pommes et du miel',['Des chaussures et des chapeaux','Des poissons et des fromages']),
+     R('Combien de citrouilles Chloé choisit-elle?','Trois',['Deux','Cinq']),
+     R('Pourquoi Chloé choisit-elle des citrouilles?','Pour l’Halloween',['Pour faire un gâteau','Pour les vendre']),
+     R('Qu’achète la grand-mère de Chloé?','Un pot de miel',['Un sac de farine','Une tarte']),
+     R('Pour quel repas le miel est-il acheté?','Pour le déjeuner',['Pour le souper','Pour la collation de minuit']),
+     R('Où le marchand met-il les achats?','Dans un grand sac en toile',['Dans une boîte en carton','Dans un chapeau']),
+     R('Que fait Chloé à la fin?','Elle remercie le marchand avec un sourire.',['Elle se fâche.','Elle part sans rien dire.']),
+     R('Que veut dire « étal »?','Une table où l’on vend des produits',['Un petit chien','Une grande maison']),
+     R('Vrai ou faux? Chloé va au marché toute seule.','Faux',['Vrai']),
+     R('Quel titre conviendrait le mieux à l’histoire de Chloé?','Un samedi matin au marché',['Une nuit à l’hôtel','Un match de basketball'])
+    ]},
+   {text:'Au marché, Mathéo vend des fleurs avec sa mère. Il installe des seaux remplis de tulipes rouges, jaunes et roses. Une dame s’approche et lui demande un bouquet de six tulipes. Mathéo choisit les plus belles et les attache avec un ruban. La dame lui donne un billet de dix dollars. Mathéo lui rend sa monnaie avec un grand sourire.',
+    reading:[
+     R('Que vend Mathéo au marché?','Des fleurs',['Des pommes','Du pain']),
+     R('Avec qui Mathéo vend-il des fleurs?','Avec sa mère',['Avec son père','Avec son ami']),
+     R('Dans quoi sont les tulipes?','Dans des seaux',['Dans des boîtes','Dans des sacs']),
+     R('De quelles couleurs sont les tulipes?','Rouges, jaunes et roses',['Bleues et vertes','Noires et blanches']),
+     R('Qui s’approche de Mathéo?','Une dame',['Un policier','Un enfant']),
+     R('Que demande la dame?','Un bouquet de six tulipes',['Une seule rose','Dix pots de miel']),
+     R('Combien de tulipes y a-t-il dans le bouquet?','Six',['Dix','Trois']),
+     R('Que choisit Mathéo pour le bouquet?','Les plus belles fleurs',['Les fleurs les plus petites','Les fleurs fanées']),
+     R('Avec quoi Mathéo attache-t-il le bouquet?','Un ruban',['Une corde','Un élastique']),
+     R('Que donne la dame à Mathéo?','Un billet de dix dollars',['Une pièce d’un dollar','Un bouquet']),
+     R('Que veut dire « monnaie » dans cette histoire?','L’argent rendu après un paiement',['Un type de fleur','Un grand panier']),
+     R('Vrai ou faux? Mathéo vend des citrouilles.','Faux',['Vrai']),
+     R('Quel titre conviendrait le mieux à l’histoire de Mathéo?','Mathéo vend des tulipes au marché',['Un voyage en train','Une soirée à la patinoire'])
+    ]}
+  ],
+  math:[
+   function(){var w=who(),f=['pommes','poires','carottes','patates'][ri(0,3)],p=ri(3,6),n=ri(2,5);return {q:'Un sac de '+f+' coûte '+p+' $. '+w.n+' achète '+n+' sacs. Combien paie-t-'+w.p+' en tout?',a:p*n,hint:'Essaie d’additionner : '+Array(n).fill(p).join(' + ')+'.'};},
+   function(){var o=[['La citrouille','la tarte aux pommes'],['Le pain','le fromage'],['Le miel','la confiture']][ri(0,2)],a=ri(5,9),b=ri(6,12);return {q:o[0]+' coûte '+a+' $ et '+o[1]+' coûte '+b+' $. Quel est le coût total des deux?',a:a+b,hint:'Additionne '+a+' + '+b+'.'};},
+   function(){var w=who(),c=ri(8,17);return {q:w.n+' donne un billet de 20 $ pour payer '+c+' $. Combien d’argent le marchand lui remet-il?',a:20-c,hint:'Enlève '+c+' de 20.'};},
+   function(){var r=ri(2,5),p=ri(3,8);return {q:'Sur le comptoir, il y a '+r+' rangées de '+p+' citrouilles. Combien y a-t-il de citrouilles en tout?',a:r*p,hint:'Essaie d’additionner : '+Array(r).fill(p).join(' + ')+'.'};},
+   function(){var a=ri(30,59),b=ri(21,38);return {q:'Le matin, le marchand vend '+a+' pommes. L’après-midi, il en vend '+b+'. Combien de pommes vend-il en tout?',a:a+b,hint:'Additionne d’abord les unités ('+a%10+' + '+b%10+'), puis les dizaines.'};},
+   function(){var a=ri(41,80),b=ri(12,35);return {q:'Le marchand avait '+a+' pains. Il en a vendu '+b+'. Combien de pains lui reste-t-il?',a:a-b,hint:'Enlève d’abord les dizaines, puis les unités.'};},
+   function(){var w=who(),a=ri(12,20),b=ri(5,11);return {q:w.n+' a '+a+' $ dans sa poche. '+w.P+' dépense '+b+' $ pour un jus. Combien d’argent lui reste-t-il?',a:a-b,hint:'Enlève '+b+' de '+a+'.'};},
+   function(){var p=ri(3,8),n=ri(2,5);return {q:'Un bouquet contient '+p+' fleurs. Le marchand prépare '+n+' bouquets. Combien de fleurs y a-t-il en tout?',a:p*n,hint:'Essaie d’additionner : '+Array(n).fill(p).join(' + ')+'.'};},
+   function(){var a=ri(120,380),b=ri(110,290);return {q:'Pendant la fin de semaine, le marché reçoit '+a+' visiteurs le samedi et '+b+' visiteurs le dimanche. Combien de visiteurs y a-t-il en tout?',a:a+b,hint:'Additionne les unités, puis les dizaines, puis les centaines.'};},
+   function(){var a=ri(41,80),b=ri(12,35);return {q:'Le marchand avait '+a+' pommes. Il en a vendu '+b+'. Combien de pommes lui reste-t-il?',a:a-b,hint:'Enlève d’abord les dizaines, puis les unités.'};},
+   function(){var n=ri(3,6),p=ri(4,8);return {q:'Il y a '+n+' étals au marché. Chaque étal a '+p+' caisses de légumes. Combien y a-t-il de caisses en tout?',a:n*p,hint:'Essaie d’additionner : '+Array(n).fill(p).join(' + ')+'.'};},
+   function(){var w=who(),a=ri(12,35),b=ri(11,28);return {q:w.n+' achète '+a+' pommes et '+b+' poires. Combien de fruits achète-t-'+w.p+' en tout?',a:a+b,hint:'Additionne d’abord les unités ('+a%10+' + '+b%10+'), puis les dizaines.'};}
+  ],
+  
+  icon:"🍎"},
+ {id:'carnaval', lvl:'3e année', title:'Le carnaval d’hiver', ready:true, label:'Un bonhomme de neige avec une tuque et une écharpe rouge',
+  svg:`<svg viewBox='0 0 150 150'><rect x='1' y='1' width='148' height='148' rx='10' fill='var(--sky)'/><g transform='translate(0,150) scale(1,-1)'><rect x='2' y='2' width='146' height='28' fill='#FFFFFF'/><circle cx='75' cy='48' r='26' fill='#FFFFFF' stroke='#4F6D85' stroke-width='1.8'/><circle cx='75' cy='88' r='20' fill='#FFFFFF' stroke='#4F6D85' stroke-width='1.8'/><circle cx='75' cy='118' r='15' fill='#FFFFFF' stroke='#4F6D85' stroke-width='1.8'/><circle cx='75' cy='92' r='2.5' fill='#34495E'/><circle cx='75' cy='82' r='2.5' fill='#34495E'/><circle cx='75' cy='50' r='2.5' fill='#34495E'/><circle cx='70' cy='121' r='2' fill='#34495E'/><circle cx='80' cy='121' r='2' fill='#34495E'/><polygon points='75,117 92,114 75,112' fill='#F28C28' stroke='#B35A12'/><polygon points='60,127 90,127 85,146 65,146' fill='#3E7CB1' stroke='#1F3B57' stroke-width='1.5'/><circle cx='75' cy='148' r='4' fill='#FFFFFF' stroke='#1F3B57'/><rect x='62' y='102' width='26' height='6' fill='#D6453D' stroke='#7E1F1A'/><rect x='84' y='88' width='6' height='16' fill='#D6453D' stroke='#7E1F1A'/><line x1='56' y1='92' x2='30' y2='104' stroke='#6B4A24' stroke-width='2.5'/><line x1='94' y1='92' x2='120' y2='104' stroke='#6B4A24' stroke-width='2.5'/></g></svg>`,
+  text:'Chaque hiver, l’école de Mia organise un carnaval dans la cour. Les élèves construisent un grand bonhomme de neige avec un nez en carotte et une écharpe rouge. Il y a aussi une course en raquettes et une glissade. À la fin de la journée, tout le monde reçoit de la tire d’érable sur la neige. Mia dit que c’est la plus belle journée de l’année!',
+  reading:[
+   R('Quand l’école de Mia organise-t-elle le carnaval?','Chaque hiver',['Chaque été','Chaque automne']),
+   R('Qui organise le carnaval?','L’école de Mia',['La famille de Mia','Le magasin du coin']),
+   R('Que construisent les élèves?','Un grand bonhomme de neige',['Un grand château de sable','Une petite cabane en bois']),
+   R('De quelle couleur est l’écharpe du bonhomme de neige?','Rouge',['Bleue','Verte']),
+   R('Avec quoi fait-on le nez du bonhomme de neige?','Une carotte',['Une pomme','Un bouton']),
+   R('Quelle est une activité du carnaval?','Une course en raquettes',['Un match de soccer','Un cours de natation']),
+   R('Que reçoit tout le monde à la fin de la journée?','De la tire d’érable sur la neige',['Des crêpes chaudes','Des biscuits']),
+   R('Sur quoi la tire d’érable est-elle servie?','Sur la neige',['Sur une assiette','Sur du pain']),
+   R('Que dit Mia de cette journée?','C’est la plus belle journée de l’année.',['C’est une journée ennuyante.','C’est la journée la plus froide.']),
+   R('Où se passe le carnaval?','Dans la cour de l’école',['Dans le gymnase','À la bibliothèque']),
+   R('Que veut dire « organise »?','Prépare et met en place',['Annule','Oublie']),
+   R('Vrai ou faux? Le bonhomme de neige a un nez en carotte.','Vrai',['Faux']),
+   R('Quel serait un bon titre pour cette histoire?','Le carnaval d’hiver à l’école',['La plage en été','Un match de hockey'])
+  ],
+  more:[
+   {text:'Dimanche, Rayan et son petit frère construisent un fort de neige dans la cour. Ils empilent de gros blocs de neige les uns sur les autres. Rayan creuse une porte et son frère décore le toit avec des branches de sapin. Quand le fort est terminé, ils s’y cachent pour boire un chocolat chaud. Leurs joues sont rouges de froid, mais ils sont très heureux!',
+    reading:[
+     R('Avec qui Rayan construit-il un fort de neige?','Son petit frère',['Sa grande sœur','Son cousin']),
+     R('Quel jour Rayan construit-il le fort?','Dimanche',['Mercredi','Jeudi']),
+     R('Où les garçons construisent-ils le fort?','Dans la cour',['Dans le gymnase','Sur la plage']),
+     R('Avec quoi construisent-ils le fort?','De gros blocs de neige',['De petites briques','Des planches de bois']),
+     R('Que fait Rayan?','Il creuse une porte.',['Il peint un mur.','Il coupe un arbre.']),
+     R('Que fait le petit frère de Rayan?','Il décore le toit.',['Il ramasse des cailloux.','Il prépare le souper.']),
+     R('Avec quoi le toit est-il décoré?','Des branches de sapin',['Des fleurs','Des ballons']),
+     R('Que font les garçons quand le fort est terminé?','Ils s’y cachent pour boire un chocolat chaud.',['Ils le détruisent.','Ils rentrent dormir.']),
+     R('Comment sont les joues des garçons?','Rouges de froid',['Vertes','Blanches de peur']),
+     R('Comment se sentent les garçons à la fin?','Très heureux',['Très tristes','Très fâchés']),
+     R('Que veut dire « empilent »?','Mettent l’un sur l’autre',['Jettent au loin','Cassent en morceaux']),
+     R('Vrai ou faux? Le fort de neige est construit en été.','Faux',['Vrai']),
+     R('Quel titre conviendrait le mieux à l’histoire de Rayan?','Un fort de neige dans la cour',['Un voyage en avion','Une journée à la plage'])
+    ]},
+   {text:'Au carnaval, Jade participe à la course de traîneaux avec ses deux amies. Chaque équipe doit tirer son traîneau autour de la grande patinoire. Jade porte une tuque jaune pour être facile à repérer. Au signal, les trois amies partent à toute vitesse. Elles glissent, rient et finissent la course en deuxième place. Le premier groupe reçoit une médaille, mais tout le monde reçoit une barbe à papa.',
+    reading:[
+     R('À quoi Jade participe-t-elle au carnaval?','À la course de traîneaux',['Au concours de dessin','Au spectacle de magie']),
+     R('Avec qui Jade participe-t-elle à la course?','Avec ses deux amies',['Avec ses parents','Toute seule']),
+     R('Que doit faire chaque équipe?','Tirer son traîneau autour de la patinoire',['Construire un igloo','Chanter une chanson']),
+     R('De quelle couleur est la tuque de Jade?','Jaune',['Verte','Noire']),
+     R('Pourquoi Jade porte-t-elle une tuque jaune?','Pour être facile à repérer',['Pour cacher ses cheveux','Parce qu’elle n’a pas d’autre tuque']),
+     R('Que font les trois amies au signal?','Elles partent à toute vitesse.',['Elles s’arrêtent.','Elles s’assoient.']),
+     R('Que font les amies pendant la course?','Elles glissent et rient.',['Elles pleurent.','Elles dorment.']),
+     R('Dans quelle position les amies finissent-elles la course?','En deuxième place',['En première place','En dernière place']),
+     R('Que reçoit le premier groupe?','Une médaille',['Un chapeau','Un livre']),
+     R('Que reçoit tout le monde à la fin de la course?','Une barbe à papa',['Une médaille','Un manteau']),
+     R('Que veut dire « repérer »?','Trouver facilement avec les yeux',['Cacher','Perdre']),
+     R('Vrai ou faux? Jade termine la course en première place.','Faux',['Vrai']),
+     R('Quel titre conviendrait le mieux à l’histoire de Jade?','La course de traîneaux au carnaval',['Un pique-nique d’été','Un cours de natation'])
+    ]}
+  ],
+  math:[
+   function(){var g=ri(2,6),p=ri(3,8),v=ri(0,1);return {q:v?'Il y a '+g+' équipes de '+p+' élèves pour la course. Combien d’élèves y a-t-il en tout?':'Il y a '+g+' groupes de '+p+' élèves qui font de la glissade. Combien d’élèves glissent en tout?',a:g*p,hint:'Essaie d’additionner : '+Array(g).fill(p).join(' + ')+'.'};},
+   function(){var a=ri(20,45),b=ri(15,38);return {q:'Le matin, '+a+' élèves font de la glissade. L’après-midi, '+b+' élèves y vont. Combien d’élèves ont glissé dans la journée?',a:a+b,hint:'Additionne d’abord les unités ('+a%10+' + '+b%10+'), puis les dizaines.'};},
+   function(){var w=who(),it=['morceaux de tire d’érable','beignes','guimauves','biscuits'][ri(0,3)],a=ri(10,18),b=ri(3,9);return {q:w.n+' a '+a+' '+it+'. '+w.P+' en mange '+b+'. Combien de '+it+' lui reste-t-il?',a:a-b,hint:'Enlève '+b+' de '+a+'.'};},
+   function(){var n=ri(2,5),b=ri(3,6);return {q:'Les élèves construisent '+n+' bonhommes de neige. Chaque bonhomme a '+b+' boutons. Combien de boutons y a-t-il en tout?',a:n*b,hint:'Essaie d’additionner : '+Array(n).fill(b).join(' + ')+'.'};},
+   function(){var c=[['rouges','bleues'],['vertes','jaunes']][ri(0,1)],a=ri(20,49),b=ri(15,38);return {q:'Dans la cour, il y a '+a+' raquettes '+c[0]+' et '+b+' raquettes '+c[1]+'. Combien y a-t-il de raquettes en tout?',a:a+b,hint:'Additionne d’abord les unités ('+a%10+' + '+b%10+'), puis les dizaines.'};},
+   function(){var a=ri(50,90),b=ri(12,35);return {q:'Il y a '+a+' élèves dans la cour. Ensuite, '+b+' élèves rentrent à l’intérieur. Combien d’élèves restent dans la cour?',a:a-b,hint:'Enlève d’abord les dizaines, puis les unités.'};},
+   function(){var w=who(),a=ri(11,29),b=ri(8,25);return {q:w.n+' a ramassé '+a+' boules de neige et son ami en a ramassé '+b+'. Combien de boules de neige ont-ils en tout?',a:a+b,hint:'Additionne les dizaines, puis les unités.'};},
+   function(){var p=ri(3,5),n=ri(2,6);return {q:'Chaque traîneau transporte '+p+' élèves. Il y a '+n+' traîneaux. Combien d’élèves y a-t-il sur les traîneaux?',a:p*n,hint:'Essaie d’additionner : '+Array(n).fill(p).join(' + ')+'.'};},
+   function(){var a=ri(120,380),b=ri(110,290);return {q:'Pendant le carnaval, '+a+' personnes viennent le samedi et '+b+' personnes viennent le dimanche. Combien de personnes y a-t-il en tout?',a:a+b,hint:'Additionne les unités, puis les dizaines, puis les centaines.'};},
+   function(){var p=ri(2,5),n=ri(2,6);return {q:'Un billet de glissade coûte '+p+' $. '+n+' amis achètent un billet chacun. Combien paient-ils en tout?',a:p*n,hint:'Essaie d’additionner : '+Array(n).fill(p).join(' + ')+'.'};},
+   function(){var a=ri(31,60),b=ri(12,28);return {q:'Il y avait '+a+' tuques dans la boîte. Les élèves en prennent '+b+'. Combien de tuques reste-t-il dans la boîte?',a:a-b,hint:'Enlève d’abord les dizaines, puis les unités.'};},
+   function(){var n=ri(3,6),p=ri(4,8);return {q:'Il y a '+n+' rangées de '+p+' tuques sur la table. Combien y a-t-il de tuques en tout?',a:n*p,hint:'Essaie d’additionner : '+Array(n).fill(p).join(' + ')+'.'};}
+  ],
+  
+  icon:"⛄"},
+ {id:'verger', lvl:'2e année', title:'Au verger', ready:true, label:'Un pommier, une échelle et un panier de pommes',
+  svg:`<svg viewBox='0 0 150 150'><rect x='1' y='1' width='148' height='148' rx='10' fill='var(--sky)'/><rect x='2' y='118' width='146' height='29' fill='#BFE3A3'/><rect x='62' y='82' width='22' height='40' fill='#A9744F' stroke='#5C3D24' stroke-width='1.5'/><g fill='#8FCB6A' stroke='#4F7A2B' stroke-width='1.5'><circle cx='73' cy='54' r='30'/><circle cx='49' cy='66' r='22'/><circle cx='98' cy='66' r='22'/></g><g fill='#E5473F' stroke='#8E1F1A' stroke-width='1.4'><circle cx='58' cy='48' r='6'/><circle cx='82' cy='42' r='6'/><circle cx='98' cy='68' r='6'/><circle cx='48' cy='72' r='6'/><circle cx='73' cy='68' r='6'/><circle cx='70' cy='30' r='6'/></g><g stroke='#8A6234' stroke-width='3'><line x1='20' y1='128' x2='34' y2='64'/><line x1='34' y1='128' x2='48' y2='64'/><line x1='24' y1='110' x2='38' y2='110'/><line x1='28' y1='92' x2='42' y2='92'/><line x1='32' y1='74' x2='46' y2='74'/></g><polygon points='104,112 136,112 132,134 108,134' fill='#C79A62' stroke='#6B4A24' stroke-width='1.5'/><g fill='#E5473F' stroke='#8E1F1A' stroke-width='1.2'><circle cx='112' cy='110' r='6'/><circle cx='122' cy='108' r='6'/><circle cx='130' cy='111' r='6'/></g></svg>`,
+  text:'Samedi, Zoé et son papa vont au verger. Ils cueillent des pommes rouges dans de grands paniers. Zoé monte sur une petite échelle pour atteindre les pommes du haut. Elle croque une pomme juteuse. Miam!',
+  reading:[
+   R('Qui va au verger avec Zoé?','Son papa',['Sa maman','Son oncle']),
+   R('Quel jour vont-ils au verger?','Samedi',['Mardi','Vendredi']),
+   R('Dans quoi cueillent-ils les pommes?','Dans de grands paniers',['Dans des sacs de papier','Dans des bols']),
+   R('De quelle couleur sont les pommes?','Rouges',['Vertes','Jaunes']),
+   R('Pourquoi Zoé monte-t-elle sur l’échelle?','Pour atteindre les pommes du haut',['Pour jouer à cache-cache','Pour regarder les oiseaux']),
+   R('Comment est la pomme que Zoé croque?','Juteuse',['Pourrie','Très sèche']),
+   R('Que fait Zoé avec la pomme?','Elle la croque.',['Elle la lance.','Elle la plante.']),
+   R('Que veut dire « juteuse »?','Pleine de jus',['Très dure','Très petite']),
+   R('Vrai ou faux? Zoé reste en bas de l’échelle.','Faux',['Vrai']),
+   R('Quel serait un bon titre pour cette histoire?','Une journée au verger',['Une soirée au cinéma','Un match de balle'])
+  ],
+  more:[
+   {text:'Dimanche, Lucas et sa maman vont au verger. Ils prennent un petit panier bleu. Lucas cueille six pommes vertes. Sa maman cueille des pommes rouges. Ensuite, ils mangent un beigne chaud avec du cidre de pomme. C’est délicieux!',
+    reading:[
+     R('Avec qui Lucas va-t-il au verger?','Sa maman',['Son papa','Sa tante']),
+     R('Quel jour Lucas va-t-il au verger?','Dimanche',['Lundi','Mercredi']),
+     R('De quelle couleur est le panier?','Bleu',['Rouge','Jaune']),
+     R('Combien de pommes vertes Lucas cueille-t-il?','Six',['Deux','Dix']),
+     R('Qui cueille des pommes rouges?','Sa maman',['Lucas','Le chien']),
+     R('Que mangent Lucas et sa maman?','Un beigne chaud',['Une pizza','Une salade']),
+     R('Que boivent-ils avec le beigne?','Du cidre de pomme',['Du jus d’orange','De la soupe']),
+     R('Comment est le beigne?','Chaud',['Froid','Brûlé']),
+     R('Que veut dire « délicieux »?','Très bon à manger',['Très mauvais','Très long']),
+     R('Vrai ou faux? Lucas cueille des bananes.','Faux',['Vrai']),
+     R('Quel titre conviendrait le mieux à l’histoire de Lucas?','Une collation au verger',['Une journée à l’école','Un match de hockey'])
+    ]},
+   {text:'Après l’école, la classe de Maya visite le verger. Un fermier leur montre un grand pommier. Il explique que les pommes poussent sur les branches. Chaque élève cueille une pomme et la met dans un sac. Maya trouve une pomme avec un petit ver! Elle la jette et en prend une autre.',
+    reading:[
+     R('Qui visite le verger?','La classe de Maya',['La famille de Maya','L’équipe de hockey']),
+     R('Quand la classe visite-t-elle le verger?','Après l’école',['Avant l’école','La nuit']),
+     R('Qui montre un grand pommier aux élèves?','Un fermier',['Un pompier','Un policier']),
+     R('Où les pommes poussent-elles?','Sur les branches',['Sous la terre','Dans l’eau']),
+     R('Que cueille chaque élève?','Une pomme',['Une fleur','Une carotte']),
+     R('Dans quoi chaque élève met-il sa pomme?','Dans un sac',['Dans un seau','Dans un chapeau']),
+     R('Que trouve Maya dans une pomme?','Un petit ver',['Une souris','Une pièce d’or']),
+     R('Que fait Maya avec cette pomme?','Elle la jette.',['Elle la mange.','Elle la cache.']),
+     R('Que fait Maya ensuite?','Elle en prend une autre.',['Elle rentre chez elle.','Elle pleure.']),
+     R('Que veut dire « explique »?','Dit comment les choses fonctionnent',['Chante','Cache']),
+     R('Vrai ou faux? Les pommes poussent sous la terre.','Faux',['Vrai']),
+     R('Quel titre conviendrait le mieux à l’histoire de Maya?','Une sortie scolaire au verger',['Une journée au zoo','Un voyage en train'])
+    ]}
+  ],
+  math:[
+   function(){var w=who(),a=ri(3,9),b=ri(3,9);return {q:w.n+' cueille '+a+' pommes. Un ami en cueille '+b+'. Combien de pommes ont-ils en tout?',a:a+b,hint:'Compte en avançant de '+b+' à partir de '+a+'.'};},
+   function(){var p=ad();return {q:'Il y a '+p[0]+' pommes dans le panier. On en ajoute '+p[1]+'. Combien y a-t-il de pommes maintenant?',a:p[0]+p[1],hint:'Additionne les dizaines, puis les unités.'};},
+   function(){var w=who(),a=ri(8,15),b=ri(3,7);return {q:w.n+' a '+a+' pommes. '+w.P+' en donne '+b+' à un ami. Combien de pommes lui reste-t-il?',a:a-b,hint:'Enlève '+b+' de '+a+'.'};},
+   function(){var n=ri(2,6);return {q:'Il y a '+n+' paniers. Chaque panier contient 5 pommes. Combien y a-t-il de pommes en tout?',a:5*n,hint:'Compte par 5 : 5, 10, 15…'};},
+   function(){var p=sb();return {q:'Il y avait '+p[0]+' pommes sur la table. On en prend '+p[1]+'. Combien de pommes reste-t-il?',a:p[0]-p[1],hint:'Enlève les dizaines, puis les unités.'};},
+   function(){var w=who(),a=ri(4,9),b=ri(4,9);return {q:w.n+' a '+a+' pommes rouges et '+b+' pommes vertes. Combien de pommes a-t-'+w.p+' en tout?',a:a+b,hint:'Compte en avançant de '+b+' à partir de '+a+'.'};},
+   function(){var n=ri(2,8);return {q:'Chaque élève a 2 pommes. Il y a '+n+' élèves. Combien de pommes y a-t-il en tout?',a:2*n,hint:'Compte par 2 : 2, 4, 6…'};},
+   function(){var n=ri(2,9);return {q:'Il y a '+n+' caisses. Chaque caisse contient 10 pommes. Combien y a-t-il de pommes en tout?',a:10*n,hint:'Compte par 10 : 10, 20, 30…'};},
+   function(){var a=ri(12,19),b=ri(3,8);return {q:'Il y a '+a+' pommes sur l’arbre. Ensuite, '+b+' pommes tombent par terre. Combien de pommes reste-t-il sur l’arbre?',a:a-b,hint:'Enlève '+b+' de '+a+'.'};},
+   function(){var w=who(),a=ri(3,9);return {q:w.n+' cueille '+a+' pommes. Son ami cueille '+a+' pommes aussi. Combien de pommes cueillent-ils en tout?',a:2*a,hint:'Additionne '+a+' + '+a+'.'};},
+   function(){var p=ad();return {q:'Le matin, on cueille '+p[0]+' pommes. L’après-midi, on en cueille '+p[1]+'. Combien de pommes cueille-t-on en tout?',a:p[0]+p[1],hint:'Additionne les dizaines, puis les unités.'};},
+   function(){var p=sb();return {q:'On a cueilli '+p[0]+' pommes. On en donne '+p[1]+' à des amis. Combien de pommes reste-t-il?',a:p[0]-p[1],hint:'Enlève les dizaines, puis les unités.'};}
+  ],
+  
+  icon:"🍏"},
+ {id:'biblio', lvl:'2e année', title:'À la bibliothèque', ready:true, label:'Une bibliothèque avec des livres et un dinosaure en peluche',
+  svg:`<svg viewBox='0 0 150 150'><rect x='1' y='1' width='148' height='148' rx='10' fill='var(--sky)'/><rect x='2' y='112' width='146' height='35' fill='#E9D9B8'/><rect x='14' y='14' width='122' height='74' fill='#D9B88A' stroke='#6B4A24' stroke-width='2'/><line x1='14' y1='51' x2='136' y2='51' stroke='#6B4A24' stroke-width='2'/><g stroke='#34495E' stroke-width='1.2'><rect x='20' y='22' width='12' height='27' fill='#E5473F'/><rect x='34' y='18' width='12' height='31' fill='#3E7CB1'/><rect x='48' y='24' width='12' height='25' fill='#7DB955'/><rect x='62' y='20' width='12' height='29' fill='#F2B84B'/><rect x='76' y='22' width='12' height='27' fill='#9B6FC6'/><rect x='90' y='18' width='12' height='31' fill='#E8863D'/><rect x='104' y='24' width='12' height='25' fill='#4FB3A5'/><rect x='118' y='20' width='12' height='29' fill='#E5473F'/><rect x='20' y='60' width='12' height='26' fill='#4FB3A5'/><rect x='34' y='56' width='12' height='30' fill='#E8863D'/><rect x='48' y='62' width='12' height='24' fill='#9B6FC6'/><rect x='62' y='58' width='12' height='28' fill='#F2B84B'/><rect x='76' y='60' width='12' height='26' fill='#7DB955'/><rect x='90' y='56' width='12' height='30' fill='#3E7CB1'/></g><ellipse cx='36' cy='122' rx='26' ry='9' fill='#E8663D' stroke='#9C3B1A' stroke-width='1.5'/><polygon points='96,106 104,98 112,106 120,98 128,106 128,112 96,112' fill='#5FA043'/><ellipse cx='112' cy='116' rx='22' ry='15' fill='#7DB955' stroke='#3E6F25' stroke-width='1.8'/><circle cx='132' cy='104' r='10' fill='#7DB955' stroke='#3E6F25' stroke-width='1.8'/><circle cx='135' cy='102' r='1.8' fill='#34495E'/><polygon points='90,114 72,126 92,126' fill='#7DB955' stroke='#3E6F25' stroke-width='1.5'/><rect x='100' y='126' width='8' height='14' fill='#7DB955' stroke='#3E6F25' stroke-width='1.5'/><rect x='118' y='126' width='8' height='14' fill='#7DB955' stroke='#3E6F25' stroke-width='1.5'/></svg>`,
+  text:'Mardi, Nathan va à la bibliothèque de son école. Il cherche un livre sur les dinosaures. La bibliothécaire l’aide à le trouver sur une grande étagère. Nathan s’assoit sur un coussin et commence à lire. Il adore les images de dinosaures!',
+  reading:[
+   R('Où Nathan va-t-il?','À la bibliothèque de son école',['Au parc','À la piscine']),
+   R('Quel jour Nathan va-t-il à la bibliothèque?','Mardi',['Jeudi','Samedi']),
+   R('Quel livre Nathan cherche-t-il?','Un livre sur les dinosaures',['Un livre sur les chats','Un livre sur les autos']),
+   R('Qui aide Nathan à trouver le livre?','La bibliothécaire',['Son ami Léo','Sa grande sœur']),
+   R('Où est le livre?','Sur une grande étagère',['Sous la table','Dans son sac']),
+   R('Sur quoi Nathan s’assoit-il?','Sur un coussin',['Sur un banc','Sur une chaise']),
+   R('Que fait Nathan sur le coussin?','Il commence à lire.',['Il dort.','Il dessine.']),
+   R('Qu’est-ce que Nathan adore?','Les images de dinosaures',['Les bonbons','Les ballons']),
+   R('Que veut dire « bibliothécaire »?','La personne qui s’occupe des livres',['Le cuisinier de l’école','Le conducteur d’autobus']),
+   R('Vrai ou faux? La bibliothèque est dans l’école de Nathan.','Vrai',['Faux']),
+   R('Quel serait un bon titre pour cette histoire?','Nathan lit un livre sur les dinosaures',['Nathan joue au hockey','Nathan fait un gâteau'])
+  ],
+  more:[
+   {text:'Jeudi, Inès va à la bibliothèque avec sa classe. Elle cherche un livre de contes avec des animaux. Elle trouve un livre sur un ours qui aime le miel. La bibliothécaire écrit son nom sur une petite carte. Inès peut garder le livre pendant deux semaines. Elle le range dans son sac et le rapporte à la maison.',
+    reading:[
+     R('Où Inès va-t-elle jeudi?','À la bibliothèque',['Au parc','Au magasin']),
+     R('Avec qui Inès va-t-elle à la bibliothèque?','Avec sa classe',['Avec sa mère','Avec son chien']),
+     R('Quel genre de livre Inès cherche-t-elle?','Un livre de contes avec des animaux',['Un livre de recettes','Un livre de mathématiques']),
+     R('Qu’est-ce que l’ours du livre aime?','Le miel',['Le poisson','Les bonbons']),
+     R('Qui écrit le nom d’Inès?','La bibliothécaire',['Son enseignante','Son ami']),
+     R('Sur quoi écrit-on le nom d’Inès?','Sur une petite carte',['Sur un grand tableau','Sur un cahier']),
+     R('Combien de temps Inès peut-elle garder le livre?','Deux semaines',['Deux jours','Un mois']),
+     R('Où Inès range-t-elle le livre?','Dans son sac',['Dans une boîte','Sur une chaise']),
+     R('Que fait Inès avec le livre?','Elle le rapporte à la maison.',['Elle le laisse à l’école.','Elle le perd.']),
+     R('Que veut dire « rapporte »?','Amène avec elle à la maison',['Jette','Oublie']),
+     R('Vrai ou faux? Inès cherche un livre sur les dinosaures.','Faux',['Vrai']),
+     R('Quel titre conviendrait le mieux à l’histoire d’Inès?','Un livre d’animaux à la maison',['Une journée à la plage','Un match de soccer'])
+    ]},
+   {text:'Tous les vendredis, il y a l’heure du conte à la bibliothèque. Les enfants s’assoient en cercle sur le tapis. Monsieur Léo lit une histoire de pirates avec une voix drôle. Les enfants rient très fort. À la fin, chacun dessine son pirate préféré. Max dessine un pirate avec un chapeau bleu.',
+    reading:[
+     R('Quand a lieu l’heure du conte?','Tous les vendredis',['Tous les lundis','Tous les dimanches']),
+     R('Où se passe l’heure du conte?','À la bibliothèque',['À la piscine','Au restaurant']),
+     R('Comment les enfants s’assoient-ils?','En cercle',['En rang','Sur une table']),
+     R('Sur quoi les enfants s’assoient-ils?','Sur le tapis',['Sur la neige','Sur l’herbe']),
+     R('Qui lit l’histoire?','Monsieur Léo',['Madame Julie','Le directeur']),
+     R('Quelle sorte d’histoire monsieur Léo lit-il?','Une histoire de pirates',['Une histoire de dragons','Une histoire d’astronautes']),
+     R('Comment est la voix de monsieur Léo?','Drôle',['Fâchée','Très basse']),
+     R('Que font les enfants pendant l’histoire?','Ils rient très fort.',['Ils dorment.','Ils pleurent.']),
+     R('Que fait chaque enfant à la fin?','Il dessine son pirate préféré.',['Il mange une collation.','Il chante.']),
+     R('De quelle couleur est le chapeau du pirate de Max?','Bleu',['Rouge','Vert']),
+     R('Que veut dire « préféré »?','Que l’on aime le plus',['Que l’on aime le moins','Que l’on oublie']),
+     R('Vrai ou faux? L’heure du conte a lieu le dimanche.','Faux',['Vrai']),
+     R('Quel titre conviendrait le mieux à cette histoire?','Une heure du conte avec des pirates',['Une journée au zoo','Un voyage en avion'])
+    ]}
+  ],
+  math:[
+   function(){var w=who(),a=ri(2,9),b=ri(2,9);return {q:w.n+' emprunte '+a+' livres. Un ami en emprunte '+b+'. Combien de livres ont-ils empruntés?',a:a+b,hint:'Compte en avançant de '+b+' à partir de '+a+'.'};},
+   function(){var p=ad();return {q:'Il y a '+p[0]+' livres sur l’étagère du haut et '+p[1]+' livres sur l’étagère du bas. Combien y a-t-il de livres en tout?',a:p[0]+p[1],hint:'Additionne les dizaines, puis les unités.'};},
+   function(){var w=who(),a=ri(8,14),b=ri(3,7);return {q:w.n+' a '+a+' autocollants. '+w.P+' en colle '+b+' dans son cahier. Combien d’autocollants lui reste-t-il?',a:a-b,hint:'Enlève '+b+' de '+a+'.'};},
+   function(){var n=ri(2,9);return {q:'Il y a '+n+' tablettes. Chaque tablette contient 10 livres. Combien y a-t-il de livres en tout?',a:10*n,hint:'Compte par 10 : 10, 20, 30…'};},
+   function(){var p=sb();return {q:'Il y avait '+p[0]+' livres dans le bac. On en emprunte '+p[1]+'. Combien de livres reste-t-il dans le bac?',a:p[0]-p[1],hint:'Enlève les dizaines, puis les unités.'};},
+   function(){var w=who(),a=ri(4,9),b=ri(4,9);return {q:w.n+' lit '+a+' pages lundi et '+b+' pages mardi. Combien de pages lit-'+w.p+' en tout?',a:a+b,hint:'Compte en avançant de '+b+' à partir de '+a+'.'};},
+   function(){var n=ri(2,8);return {q:'Chaque enfant lit 2 livres. Il y a '+n+' enfants. Combien de livres lisent-ils en tout?',a:2*n,hint:'Compte par 2 : 2, 4, 6…'};},
+   function(){var n=ri(2,6);return {q:'Il y a '+n+' étagères. Chaque étagère a 5 livres de dinosaures. Combien y a-t-il de livres de dinosaures en tout?',a:5*n,hint:'Compte par 5 : 5, 10, 15…'};},
+   function(){var a=ri(12,19),b=ri(3,8);return {q:'Il y a '+a+' livres sur la table. On en range '+b+' sur l’étagère. Combien de livres reste-t-il sur la table?',a:a-b,hint:'Enlève '+b+' de '+a+'.'};},
+   function(){var w=who(),a=ri(3,9);return {q:w.n+' lit '+a+' pages. Son ami lit '+a+' pages aussi. Combien de pages lisent-ils en tout?',a:2*a,hint:'Additionne '+a+' + '+a+'.'};},
+   function(){var p=ad();return {q:'Le matin, '+p[0]+' enfants viennent à la bibliothèque. L’après-midi, '+p[1]+' enfants viennent. Combien d’enfants viennent en tout?',a:p[0]+p[1],hint:'Additionne les dizaines, puis les unités.'};},
+   function(){var p=sb();return {q:'Il y avait '+p[0]+' autocollants dans la boîte. Les enfants en prennent '+p[1]+'. Combien d’autocollants reste-t-il?',a:p[0]-p[1],hint:'Enlève les dizaines, puis les unités.'};}
+  ],
+  
+  icon:"📚"},
+ {id:'parc', lvl:'2e année', title:'Au parc', ready:true, label:'Une glissade et une balançoire dans un parc ensoleillé',
+  svg:`<svg viewBox='0 0 150 150'><rect x='1' y='1' width='148' height='148' rx='10' fill='var(--sky)'/><rect x='2' y='112' width='146' height='35' fill='#BFE3A3'/><circle cx='26' cy='26' r='13' fill='#FFD84D' stroke='#C9A200' stroke-width='1.5'/><g stroke='#34495E' stroke-width='3'><line x1='28' y1='112' x2='28' y2='56'/><line x1='44' y1='112' x2='44' y2='56'/><line x1='28' y1='70' x2='44' y2='70'/><line x1='28' y1='84' x2='44' y2='84'/><line x1='28' y1='98' x2='44' y2='98'/></g><rect x='24' y='52' width='26' height='5' fill='#E5473F' stroke='#34495E' stroke-width='1.5'/><polygon points='48,54 52,48 92,104 84,110' fill='#F2B84B' stroke='#34495E' stroke-width='1.8'/><g stroke='#34495E' stroke-width='3'><line x1='104' y1='36' x2='134' y2='36'/><line x1='104' y1='36' x2='96' y2='112'/><line x1='134' y1='36' x2='142' y2='112'/></g><g stroke='#555555' stroke-width='1.3'><line x1='113' y1='36' x2='113' y2='88'/><line x1='125' y1='36' x2='125' y2='88'/></g><rect x='109' y='88' width='20' height='5' fill='#3E7CB1' stroke='#1F3B57' stroke-width='1.3'/></svg>`,
+  text:'Il fait beau aujourd’hui. Emma joue au parc avec ses amis. Elle glisse sur la glissade et se balance très haut. Ensuite, ils font un pique-nique sous un grand arbre. Emma mange un sandwich et un petit gâteau.',
+  reading:[
+   R('Quel temps fait-il aujourd’hui?','Il fait beau.',['Il pleut.','Il neige.']),
+   R('Avec qui Emma joue-t-elle?','Avec ses amis',['Avec son chien','Avec sa grand-mère']),
+   R('Où Emma joue-t-elle?','Au parc',['À la piscine','À l’école']),
+   R('Sur quoi Emma glisse-t-elle?','Sur la glissade',['Sur la neige','Sur la glace']),
+   R('Comment Emma se balance-t-elle?','Très haut',['Très lentement','Très bas']),
+   R('Où font-ils leur pique-nique?','Sous un grand arbre',['Dans une cabane','Près de la piscine']),
+   R('Que mange Emma?','Un sandwich et un petit gâteau',['Une pizza et une glace','Des pâtes et une pomme']),
+   R('Que font les amis après avoir joué?','Un pique-nique',['Une sieste','Une course']),
+   R('Vrai ou faux? Il pleut dans cette histoire.','Faux',['Vrai']),
+   R('Quel serait un bon titre pour cette histoire?','Une belle journée au parc',['Une nuit à la maison','Un voyage en avion'])
+  ],
+  more:[
+   {text:'Mardi après l’école, Samuel et sa sœur Nora vont au parc. Samuel monte l’échelle de la glissade. Il glisse sur le ventre et rit très fort. Nora pousse son amie sur la balançoire. Un petit chien court après un ballon rouge. Tout le monde s’amuse bien!',
+    reading:[
+     R('Avec qui Samuel va-t-il au parc?','Sa sœur Nora',['Son frère','Son cousin']),
+     R('Quand Samuel et Nora vont-ils au parc?','Mardi après l’école',['Samedi matin','Dimanche soir']),
+     R('Que monte Samuel?','L’échelle de la glissade',['Un grand arbre','Une montagne']),
+     R('Comment Samuel glisse-t-il?','Sur le ventre',['Sur le dos','Debout']),
+     R('Que fait Samuel en glissant?','Il rit très fort.',['Il pleure.','Il dort.']),
+     R('Que fait Nora?','Elle pousse son amie sur la balançoire.',['Elle fait du vélo.','Elle mange une pomme.']),
+     R('Que fait le petit chien?','Il court après un ballon.',['Il dort sous un banc.','Il mange un os.']),
+     R('De quelle couleur est le ballon?','Rouge',['Bleu','Vert']),
+     R('Comment se sentent les enfants?','Ils s’amusent bien.',['Ils s’ennuient.','Ils ont peur.']),
+     R('Que veut dire « s’amuse »?','Passe un bon moment',['Dort','Pleure']),
+     R('Vrai ou faux? Samuel va au parc tout seul.','Faux',['Vrai']),
+     R('Quel titre conviendrait le mieux à l’histoire de Samuel?','Samuel et Nora s’amusent au parc',['Une nuit à la maison','Un voyage en train'])
+    ]},
+   {text:'C’est la journée de la fête au parc. Il y a des ballons de toutes les couleurs. Léa fait peindre son visage en papillon. Hugo joue à la pêche aux canards avec un petit filet. Un clown fait des tours de magie. À la fin, les enfants reçoivent un sac de surprises.',
+    reading:[
+     R('Quelle journée est-ce au parc?','La journée de la fête',['Le premier jour d’école','La journée de la neige']),
+     R('Qu’y a-t-il au parc pendant la fête?','Des ballons de toutes les couleurs',['Des vaches','Des autos']),
+     R('Qu’est-ce que Léa fait peindre sur son visage?','Un papillon',['Un chat','Une étoile']),
+     R('À quoi Hugo joue-t-il?','À la pêche aux canards',['Au soccer','Aux cartes']),
+     R('Avec quoi Hugo joue-t-il?','Un petit filet',['Un gros bâton','Une corde']),
+     R('Qui fait des tours de magie?','Un clown',['Un pompier','Un cuisinier']),
+     R('Que reçoivent les enfants à la fin?','Un sac de surprises',['Un chapeau','Un gâteau']),
+     R('Quand les enfants reçoivent-ils le sac de surprises?','À la fin',['Au début','Pendant le dîner']),
+     R('Que veut dire « surprises »?','Des cadeaux que l’on ne connaît pas à l’avance',['Des devoirs','Des légumes']),
+     R('Vrai ou faux? Hugo joue au soccer.','Faux',['Vrai']),
+     R('Quel titre conviendrait le mieux à l’histoire de la fête?','La fête au parc',['Une nuit au camping','Un cours de piano'])
+    ]}
+  ],
+  math:[
+   function(){var a=ri(3,9),b=ri(3,9);return {q:'Au parc, il y a '+a+' enfants dans le sable et '+b+' enfants sur la glissade. Combien y a-t-il d’enfants en tout?',a:a+b,hint:'Compte en avançant de '+b+' à partir de '+a+'.'};},
+   function(){var p=sb();return {q:'Il y a '+p[0]+' oiseaux dans l’arbre. Ensuite, '+p[1]+' oiseaux s’envolent. Combien d’oiseaux reste-t-il dans l’arbre?',a:p[0]-p[1],hint:'Enlève les dizaines, puis les unités.'};},
+   function(){var n=ri(2,6);return {q:'Il y a '+n+' bancs dans le parc. Il y a 2 enfants sur chaque banc. Combien d’enfants y a-t-il sur les bancs?',a:2*n,hint:'Compte par 2 : 2, 4, 6…'};},
+   function(){var w=who(),a=ri(8,15),b=ri(3,7);return {q:w.n+' a '+a+' ballons. '+w.P+' en donne '+b+' à ses amis. Combien de ballons lui reste-t-il?',a:a-b,hint:'Enlève '+b+' de '+a+'.'};},
+   function(){var p=ad();return {q:'Le matin, il y a '+p[0]+' enfants au parc. L’après-midi, '+p[1]+' autres enfants arrivent. Combien d’enfants y a-t-il maintenant?',a:p[0]+p[1],hint:'Additionne les dizaines, puis les unités.'};},
+   function(){var w=who(),a=ri(4,9),b=ri(4,9);return {q:w.n+' lance le ballon '+a+' fois, puis '+b+' fois de plus. Combien de fois lance-t-'+w.p+' le ballon en tout?',a:a+b,hint:'Compte en avançant de '+b+' à partir de '+a+'.'};},
+   function(){var n=ri(2,6);return {q:'Il y a '+n+' équipes. Chaque équipe a 5 enfants. Combien y a-t-il d’enfants en tout?',a:5*n,hint:'Compte par 5 : 5, 10, 15…'};},
+   function(){var n=ri(2,9);return {q:'Il y a '+n+' boîtes. Chaque boîte contient 10 craies. Combien y a-t-il de craies en tout?',a:10*n,hint:'Compte par 10 : 10, 20, 30…'};},
+   function(){var a=ri(12,19),b=ri(3,8);return {q:'Il y avait '+a+' canards dans l’étang. Ensuite, '+b+' canards s’envolent. Combien de canards reste-t-il dans l’étang?',a:a-b,hint:'Enlève '+b+' de '+a+'.'};},
+   function(){var w=who(),a=ri(3,9);return {q:w.n+' a '+a+' ballons. Son ami a '+a+' ballons aussi. Combien de ballons ont-ils en tout?',a:2*a,hint:'Additionne '+a+' + '+a+'.'};},
+   function(){var p=sb();return {q:'Il y avait '+p[0]+' ballons à la fête. Ensuite, '+p[1]+' ballons éclatent. Combien de ballons reste-t-il?',a:p[0]-p[1],hint:'Enlève les dizaines, puis les unités.'};},
+   function(){var p=ad();return {q:'Il y a '+p[0]+' enfants à la glissade et '+p[1]+' enfants à la balançoire. Combien d’enfants y a-t-il en tout?',a:p[0]+p[1],hint:'Additionne les dizaines, puis les unités.'};}
+  ],
+  
+  icon:"🛝"},
+ {id:'ferme', lvl:'2e année', title:'À la ferme', ready:true, label:'Une poule, un poussin et une grange rouge',
+  svg:`<svg viewBox='0 0 150 150'><rect x='1' y='1' width='148' height='148' rx='10' fill='var(--sky)'/><rect x='2' y='116' width='146' height='31' fill='#BFE3A3'/><rect x='10' y='56' width='52' height='60' fill='#C8473F' stroke='#7E1F1A' stroke-width='2'/><polygon points='6,58 36,32 66,58' fill='#8A4F2B' stroke='#5C3D24' stroke-width='2'/><rect x='26' y='82' width='20' height='34' fill='#F4E9D4' stroke='#7E1F1A' stroke-width='1.5'/><line x1='26' y1='82' x2='46' y2='116' stroke='#7E1F1A' stroke-width='1.5'/><line x1='46' y1='82' x2='26' y2='116' stroke='#7E1F1A' stroke-width='1.5'/><polygon points='84,100 66,88 70,106' fill='#F4E9D4' stroke='#6B4A24' stroke-width='1.5'/><ellipse cx='100' cy='104' rx='26' ry='19' fill='#FFFFFF' stroke='#6B4A24' stroke-width='1.8'/><ellipse cx='102' cy='106' rx='13' ry='8' fill='#F4E9D4' stroke='#6B4A24' stroke-width='1.2'/><circle cx='122' cy='84' r='11' fill='#FFFFFF' stroke='#6B4A24' stroke-width='1.8'/><g fill='#E5473F' stroke='#8E1F1A' stroke-width='1'><circle cx='116' cy='73' r='4'/><circle cx='122' cy='71' r='4'/><circle cx='128' cy='73' r='4'/></g><polygon points='132,84 142,87 132,90' fill='#F2B84B' stroke='#B07A10'/><circle cx='125' cy='82' r='2' fill='#34495E'/><g stroke='#B07A10' stroke-width='2.5'><line x1='94' y1='122' x2='94' y2='134'/><line x1='108' y1='122' x2='108' y2='134'/></g><circle cx='72' cy='134' r='8' fill='#FFE066' stroke='#C9A200' stroke-width='1.3'/><polygon points='79,133 85,135 79,137' fill='#F28C28'/><circle cx='74' cy='132' r='1.4' fill='#34495E'/></svg>`,
+  text:'Chaque matin, la fermière Julie nourrit les poules de la ferme. Les poules pondent des œufs dans le poulailler. Julie met les œufs dans un petit panier. Un jour, un œuf s’ouvre et un poussin jaune apparaît. Quelle belle surprise!',
+  reading:[
+   R('Qui nourrit les poules de la ferme?','La fermière Julie',['Le fermier Paul','Le facteur']),
+   R('Quand Julie nourrit-elle les poules?','Chaque matin',['Chaque soir','Chaque nuit']),
+   R('Où les poules pondent-elles leurs œufs?','Dans le poulailler',['Dans la rivière','Dans l’étable']),
+   R('Dans quoi Julie met-elle les œufs?','Dans un petit panier',['Dans une grande boîte','Dans un sac']),
+   R('Que se passe-t-il un jour?','Un œuf s’ouvre et un poussin apparaît.',['Une poule s’envole.','Un chat entre dans le poulailler.']),
+   R('De quelle couleur est le poussin?','Jaune',['Rouge','Noir']),
+   R('Que veut dire « pondent »?','Elles font des œufs.',['Elles courent vite.','Elles dorment.']),
+   R('Comment est la surprise?','Belle',['Triste','Effrayante']),
+   R('Vrai ou faux? Les poules vivent à la ferme.','Vrai',['Faux']),
+   R('Quel serait un bon titre pour cette histoire?','Un poussin à la ferme',['Un chat à l’école','Un bateau sur le lac'])
+  ],
+  more:[
+   {text:'Tôt le matin, le coq chante dans la cour de la ferme. Louis se lève et enfile ses bottes. Il donne du foin aux deux vaches. Une vache s’appelle Marguerite. Elle a des taches noires et blanches. Louis la caresse doucement. Marguerite fait « meuh » pour dire merci.',
+    reading:[
+     R('Qui chante dans la cour de la ferme?','Le coq',['Le chat','Le cochon']),
+     R('Quand le coq chante-t-il?','Tôt le matin',['Tard le soir','À midi']),
+     R('Que fait Louis quand il se lève?','Il enfile ses bottes.',['Il mange un gâteau.','Il prend un bain.']),
+     R('Combien de vaches Louis nourrit-il?','Deux',['Quatre','Dix']),
+     R('Que donne Louis aux vaches?','Du foin',['Des carottes','Du pain']),
+     R('Comment s’appelle une des vaches?','Marguerite',['Rosalie','Fleurette']),
+     R('De quelles couleurs sont les taches de la vache?','Noires et blanches',['Rouges et jaunes','Bleues et vertes']),
+     R('Que fait Louis à Marguerite?','Il la caresse doucement.',['Il la fait courir.','Il la lave.']),
+     R('Que dit Marguerite pour dire merci?','Meuh',['Cot cot','Ouaf']),
+     R('Que veut dire « doucement »?','Avec douceur',['Très fort','Très vite']),
+     R('Vrai ou faux? Louis donne du foin aux poules.','Faux',['Vrai']),
+     R('Quel titre conviendrait le mieux à l’histoire de Louis?','Un matin à la ferme avec Louis',['Une nuit dans l’espace','Un cours de natation'])
+    ]},
+   {text:'Dans le champ, Anaïs aide son grand-père à cueillir des carottes. Elle tire sur les feuilles vertes et la carotte sort de la terre. Elle en trouve une très longue! Son grand-père la lave dans un seau d’eau. Anaïs croque la carotte orange. Elle donne un petit morceau au lapin de la ferme.',
+    reading:[
+     R('Que cueille Anaïs dans le champ?','Des carottes',['Des pommes','Des fraises']),
+     R('Qui aide Anaïs?','Son grand-père',['Sa grand-mère','Son oncle']),
+     R('Où se trouvent les carottes?','Dans le champ',['Dans la cuisine','Sur un arbre']),
+     R('Comment Anaïs fait-elle sortir la carotte de la terre?','Elle tire sur les feuilles.',['Elle la coupe avec un couteau.','Elle la lance.']),
+     R('De quelle couleur sont les feuilles?','Vertes',['Rouges','Bleues']),
+     R('Comment est la carotte qu’Anaïs trouve?','Très longue',['Très petite','Toute pourrie']),
+     R('Qui lave la carotte?','Son grand-père',['Anaïs','Le lapin']),
+     R('Dans quoi la carotte est-elle lavée?','Dans un seau d’eau',['Dans une piscine','Dans une tasse']),
+     R('De quelle couleur est la carotte?','Orange',['Violette','Jaune']),
+     R('À qui Anaïs donne-t-elle un petit morceau?','Au lapin de la ferme',['Au chien','Au cheval']),
+     R('Que veut dire « croque »?','Mange en faisant du bruit',['Cache','Jette']),
+     R('Vrai ou faux? Les carottes poussent dans les arbres.','Faux',['Vrai']),
+     R('Quel titre conviendrait le mieux à l’histoire d’Anaïs?','La récolte de carottes d’Anaïs',['Un voyage à la mer','Une journée de pluie'])
+    ]}
+  ],
+  math:[
+   function(){var p=ad();return {q:'Il y a '+p[0]+' poules dans la cour et '+p[1]+' poules dans le poulailler. Combien y a-t-il de poules en tout?',a:p[0]+p[1],hint:'Additionne les dizaines, puis les unités.'};},
+   function(){var p=ad();return {q:'Julie ramasse '+p[0]+' œufs le lundi et '+p[1]+' œufs le mardi. Combien d’œufs a-t-elle ramassés en tout?',a:p[0]+p[1],hint:'Additionne les dizaines, puis les unités.'};},
+   function(){var a=ri(10,16),b=ri(4,8);return {q:'Julie a '+a+' œufs. Elle en utilise '+b+' pour faire un gâteau. Combien d’œufs lui reste-t-il?',a:a-b,hint:'Enlève '+b+' de '+a+'.'};},
+   function(){var o=[['poule','poules'],['canard','canards'],['oie','oies']][ri(0,2)],n=ri(2,8);return {q:'Chaque '+o[0]+' a 2 pattes. Il y a '+n+' '+o[1]+'. Combien de pattes y a-t-il en tout?',a:2*n,hint:'Compte par 2 : 2, 4, 6…'};},
+   function(){var a=ri(12,19),b=ri(3,8);return {q:'Il y avait '+a+' poussins dans la cour. Ensuite, '+b+' poussins sont allés dormir. Combien de poussins restent dans la cour?',a:a-b,hint:'Enlève '+b+' de '+a+'.'};},
+   function(){var a=ri(4,9),b=ri(4,9);return {q:'Julie donne '+a+' graines à une poule et '+b+' graines à une autre poule. Combien de graines donne-t-elle en tout?',a:a+b,hint:'Compte en avançant de '+b+' à partir de '+a+'.'};},
+   function(){var n=ri(2,6);return {q:'Il y a '+n+' paniers. Chaque panier contient 5 œufs. Combien y a-t-il d’œufs en tout?',a:5*n,hint:'Compte par 5 : 5, 10, 15…'};},
+   function(){var n=ri(2,9);return {q:'Il y a '+n+' sacs de grains. Chaque sac pèse 10 kilos. Combien de kilos de grains y a-t-il en tout?',a:10*n,hint:'Compte par 10 : 10, 20, 30…'};},
+   function(){var a=ri(3,9);return {q:'Une poule pond '+a+' œufs lundi et '+a+' œufs mardi. Combien d’œufs pond-elle en tout?',a:2*a,hint:'Additionne '+a+' + '+a+'.'};},
+   function(){var p=sb();return {q:'Il y avait '+p[0]+' carottes dans le champ. On en cueille '+p[1]+'. Combien de carottes reste-t-il dans le champ?',a:p[0]-p[1],hint:'Enlève les dizaines, puis les unités.'};},
+   function(){var a=ri(4,9),b=ri(4,9);return {q:'Il y a '+a+' vaches dans le pré et '+b+' vaches dans l’étable. Combien y a-t-il de vaches en tout?',a:a+b,hint:'Compte en avançant de '+b+' à partir de '+a+'.'};},
+   function(){var a=ri(12,19),b=ri(3,8);return {q:'Il y a '+a+' lapins dans le clapier. Ensuite, '+b+' lapins sortent jouer. Combien de lapins reste-t-il dans le clapier?',a:a-b,hint:'Enlève '+b+' de '+a+'.'};}
+  ],
+  
+  icon:"🐔"}
+];
+var NREAD = 4, NMATH = 3, TOTAL = 0, answered = 0, firstTry = 0, cur = null, me = null, round = [], missed = [], isRetry = false, used = {};
+var GAPS = [0, 1, 3, 7];
+var DB = loadDB();
+var CHARS = [
+ {id:"renard", name:"Flammèche", svg:`<svg viewBox='0 0 100 100'><path d='M82 84 Q99 66 88 44 Q97 60 76 68Z' fill='#FF6A2B' stroke='#B8400F' stroke-width='2'/><polygon points='22,42 28,10 47,34' fill='#F28C28' stroke='#B35A12' stroke-width='2'/><polygon points='78,42 72,10 53,34' fill='#F28C28' stroke='#B35A12' stroke-width='2'/><polygon points='29,34 31,20 40,32' fill='#FFD9A8'/><polygon points='71,34 69,20 60,32' fill='#FFD9A8'/><ellipse cx='50' cy='60' rx='33' ry='27' fill='#F28C28' stroke='#B35A12' stroke-width='2'/><ellipse cx='50' cy='70' rx='19' ry='13' fill='#FFF3E0'/><circle cx='39' cy='54' r='5' fill='#2B2B2B'/><circle cx='61' cy='54' r='5' fill='#2B2B2B'/><circle cx='40.5' cy='52.5' r='1.6' fill='#fff'/><circle cx='62.5' cy='52.5' r='1.6' fill='#fff'/><ellipse cx='50' cy='64' rx='3.5' ry='2.6' fill='#2B2B2B'/><path d='M43 71 Q50 77 57 71' fill='none' stroke='#2B2B2B' stroke-width='2' stroke-linecap='round'/><circle cx='30' cy='66' r='4' fill='#FF9C8A' opacity='.7'/><circle cx='70' cy='66' r='4' fill='#FF9C8A' opacity='.7'/></svg>`},
+ {id:"phoque", name:"Bulle", svg:`<svg viewBox='0 0 100 100'><circle cx='23' cy='36' r='9' fill='#4FA9E3' stroke='#2A6FA3' stroke-width='2'/><circle cx='77' cy='36' r='9' fill='#4FA9E3' stroke='#2A6FA3' stroke-width='2'/><circle cx='50' cy='58' r='33' fill='#5BB8F0' stroke='#2A6FA3' stroke-width='2'/><ellipse cx='50' cy='72' rx='21' ry='14' fill='#DFF3FF'/><path d='M50 8 Q38 24 50 30 Q62 24 50 8Z' fill='#BFE8FF' stroke='#2A6FA3' stroke-width='2'/><circle cx='38' cy='55' r='6' fill='#1F2D3D'/><circle cx='62' cy='55' r='6' fill='#1F2D3D'/><circle cx='40' cy='53' r='2' fill='#fff'/><circle cx='64' cy='53' r='2' fill='#fff'/><ellipse cx='50' cy='66' rx='5' ry='3.5' fill='#1F2D3D'/><path d='M42 74 Q50 80 58 74' fill='none' stroke='#1F2D3D' stroke-width='2' stroke-linecap='round'/><g stroke='#2A6FA3' stroke-width='1.5'><line x1='22' y1='68' x2='36' y2='70'/><line x1='22' y1='74' x2='36' y2='73'/><line x1='78' y1='68' x2='64' y2='70'/><line x1='78' y1='74' x2='64' y2='73'/></g></svg>`},
+ {id:"lapin", name:"Pousse", svg:`<svg viewBox='0 0 100 100'><ellipse cx='33' cy='26' rx='10' ry='23' fill='#8FD18A' stroke='#3F8A3A' stroke-width='2' transform='rotate(-10 33 26)'/><ellipse cx='67' cy='26' rx='10' ry='23' fill='#8FD18A' stroke='#3F8A3A' stroke-width='2' transform='rotate(10 67 26)'/><ellipse cx='33' cy='28' rx='4.5' ry='15' fill='#5FAE5A' transform='rotate(-10 33 28)'/><ellipse cx='67' cy='28' rx='4.5' ry='15' fill='#5FAE5A' transform='rotate(10 67 28)'/><ellipse cx='50' cy='62' rx='31' ry='27' fill='#8FD18A' stroke='#3F8A3A' stroke-width='2'/><ellipse cx='50' cy='72' rx='16' ry='11' fill='#E8F8DE'/><circle cx='39' cy='57' r='5' fill='#2B2B2B'/><circle cx='61' cy='57' r='5' fill='#2B2B2B'/><circle cx='40.5' cy='55.5' r='1.6' fill='#fff'/><circle cx='62.5' cy='55.5' r='1.6' fill='#fff'/><ellipse cx='50' cy='67' rx='3.5' ry='2.6' fill='#E8798A'/><path d='M44 73 Q50 78 56 73' fill='none' stroke='#2B2B2B' stroke-width='2' stroke-linecap='round'/><circle cx='29' cy='68' r='4' fill='#FF9C8A' opacity='.7'/><circle cx='71' cy='68' r='4' fill='#FF9C8A' opacity='.7'/></svg>`},
+ {id:"poussin", name:"Zap", svg:`<svg viewBox='0 0 100 100'><polygon points='80,34 94,30 87,48 98,46 77,72 84,54 74,56' fill='#FFB400' stroke='#B87A00' stroke-width='2' stroke-linejoin='round'/><path d='M42 24 Q44 12 48 22 Q52 8 56 22 Q60 14 60 26' fill='#FFD84D' stroke='#C9A200' stroke-width='2' stroke-linejoin='round'/><circle cx='50' cy='58' r='34' fill='#FFD84D' stroke='#C9A200' stroke-width='2'/><circle cx='38' cy='52' r='5.5' fill='#2B2B2B'/><circle cx='62' cy='52' r='5.5' fill='#2B2B2B'/><circle cx='39.8' cy='50.2' r='1.8' fill='#fff'/><circle cx='63.8' cy='50.2' r='1.8' fill='#fff'/><polygon points='43,62 57,62 50,72' fill='#F28C28' stroke='#B35A12' stroke-width='1.5' stroke-linejoin='round'/><circle cx='27' cy='64' r='6' fill='#FF8A7A' opacity='.85'/><circle cx='73' cy='64' r='6' fill='#FF8A7A' opacity='.85'/></svg>`},
+ {id:"dragon", name:"Lilas", svg:`<svg viewBox='0 0 100 100'><polygon points='32,34 26,12 46,28' fill='#F2D45C' stroke='#B8962A' stroke-width='2' stroke-linejoin='round'/><polygon points='68,34 74,12 54,28' fill='#F2D45C' stroke='#B8962A' stroke-width='2' stroke-linejoin='round'/><ellipse cx='16' cy='60' rx='10' ry='15' fill='#9C6FD6' stroke='#5E3A99' stroke-width='2' transform='rotate(-20 16 60)'/><ellipse cx='84' cy='60' rx='10' ry='15' fill='#9C6FD6' stroke='#5E3A99' stroke-width='2' transform='rotate(20 84 60)'/><circle cx='50' cy='58' r='31' fill='#B58AE8' stroke='#5E3A99' stroke-width='2'/><ellipse cx='50' cy='70' rx='18' ry='12' fill='#E6D4FA'/><circle cx='39' cy='52' r='6' fill='#2B2B2B'/><circle cx='61' cy='52' r='6' fill='#2B2B2B'/><circle cx='41' cy='50' r='2.2' fill='#fff'/><circle cx='63' cy='50' r='2.2' fill='#fff'/><circle cx='45' cy='66' r='1.8' fill='#5E3A99'/><circle cx='55' cy='66' r='1.8' fill='#5E3A99'/><path d='M43 74 Q50 80 57 74' fill='none' stroke='#5E3A99' stroke-width='2' stroke-linecap='round'/></svg>`},
+ {id:"elephant", name:"Trompette", svg:`<svg viewBox='0 0 100 100'><circle cx='21' cy='50' r='21' fill='#B8C2CC' stroke='#6B7A88' stroke-width='2'/><circle cx='79' cy='50' r='21' fill='#B8C2CC' stroke='#6B7A88' stroke-width='2'/><circle cx='21' cy='50' r='12' fill='#F4B6C2'/><circle cx='79' cy='50' r='12' fill='#F4B6C2'/><path d='M44 16 Q50 6 56 16 Q50 12 44 16Z' fill='#9AA7B3' stroke='#6B7A88' stroke-width='1.5' stroke-linejoin='round'/><circle cx='50' cy='50' r='29' fill='#C9D2DA' stroke='#6B7A88' stroke-width='2'/><path d='M42 58 L58 58 Q58 76 63 86 Q55 96 46 87 Q44 76 42 58Z' fill='#C9D2DA' stroke='#6B7A88' stroke-width='2' stroke-linejoin='round'/><g stroke='#6B7A88' stroke-width='1.5' stroke-linecap='round'><line x1='46' y1='68' x2='54' y2='68'/><line x1='47' y1='75' x2='55' y2='75'/></g><circle cx='39' cy='46' r='5' fill='#2B2B2B'/><circle cx='61' cy='46' r='5' fill='#2B2B2B'/><circle cx='40.6' cy='44.4' r='1.7' fill='#fff'/><circle cx='62.6' cy='44.4' r='1.7' fill='#fff'/><circle cx='31' cy='58' r='4' fill='#F4B6C2' opacity='.8'/><circle cx='69' cy='58' r='4' fill='#F4B6C2' opacity='.8'/></svg>`}
+];
+
+function loadDB(){ try { var d = JSON.parse(localStorage.getItem("wwu1")); if (d && d.p) return d; } catch (e) {} return {p:{}, last:null}; }
+function saveDB(){ try { localStorage.setItem("wwu1", JSON.stringify(DB)); } catch (e) {} }
+function prof(){ return DB.p[me] || (DB.p[me] = {s:{}, q:{}}); }
+function shuffle(a){ a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+function el(tag, cls, text){ var e = document.createElement(tag); if (cls) e.className = cls; if (text) e.textContent = text; return e; }
+function $(id){ return document.getElementById(id); }
+function show(id){ ["who", "menu", "sheet", "gate", "parent"].forEach(function(x){ $(x).hidden = (x !== id); }); stopSpeech(); window.scrollTo(0, 0); }
+function avatar(c){ return c.svg.replace("<svg ", '<svg role="img" aria-label="' + c.name + '" '); }
+function charOf(id){ return CHARS.filter(function(c){ return c.id === id; })[0]; }
+
+var SPEECH = ("speechSynthesis" in window) && ("SpeechSynthesisUtterance" in window), speakBtn = null, GATE = 0, armed = null;
+var curUtt = null, speakTimer = null;
+function stopSpeech(){
+  if (speakTimer) { clearTimeout(speakTimer); speakTimer = null; }
+  if (SPEECH) { try { var ss = window.speechSynthesis; if (ss.speaking || ss.pending) ss.cancel(); } catch (e) {} }
+  if (speakBtn) { speakBtn.classList.remove("on"); speakBtn = null; }
+}
+function note(btn, text){
+  var n = el("p", "msg no", text); n.setAttribute("role", "status");
+  btn.parentNode.insertBefore(n, btn.nextSibling);
+  setTimeout(function(){ if (n.parentNode) n.parentNode.removeChild(n); }, 7000);
+}
+function speak(text, btn){
+  if (!SPEECH) return;
+  var again = (speakBtn === btn); stopSpeech(); if (again) return;
+  var ss = window.speechSynthesis, u = new SpeechSynthesisUtterance(text.replace(/[«»]/g, "")), started = false;
+  u.lang = "fr-CA"; u.rate = 0.9;
+  try {
+    var vs = ss.getVoices();
+    var v = vs.filter(function(x){ return x.lang === "fr-CA" || x.lang === "fr_CA"; })[0] || vs.filter(function(x){ return x.lang.indexOf("fr") === 0; })[0];
+    if (v) { u.voice = v; u.lang = v.lang; }
+  } catch (e) {}
+  u.onstart = function(){ started = true; if (speakTimer) { clearTimeout(speakTimer); speakTimer = null; } };
+  u.onend = u.onerror = function(){ if (speakTimer) { clearTimeout(speakTimer); speakTimer = null; } if (speakBtn === btn) { btn.classList.remove("on"); speakBtn = null; } };
+  curUtt = u; speakBtn = btn; btn.classList.add("on");
+  try { if (ss.paused) ss.resume(); ss.speak(u); } catch (e) { stopSpeech(); return; }
+  speakTimer = setTimeout(function(){
+    speakTimer = null;
+    if (!started && speakBtn === btn) {
+      stopSpeech();
+      note(btn, "Le son ne démarre pas. Vérifie le volume et le mode silencieux, ou ouvre la page dans Safari.");
+    }
+  }, 3000);
+}
+function qTitle(n, q, getText){
+  var row = el("div", "qt"); row.appendChild(el("p", "t", n + ". " + q));
+  if (SPEECH) {
+    var b = el("button", "spk ico", "🔊"); b.type = "button"; b.setAttribute("aria-label", "Écouter la question");
+    b.addEventListener("click", function(){ speak(getText(), b); });
+    row.appendChild(b);
+  }
+  return row;
+}
+function plural(n, w){ return n + " " + w + (n > 1 ? "s" : ""); }
+function counts(p, sheetId){
+  var now = Date.now(), r = {seen:0, miss:0, due:0};
+  for (var k in p.q) {
+    if (sheetId && k.indexOf(sheetId + "|") !== 0) continue;
+    r.seen++; var v = p.q[k];
+    if (v[0] === 0) r.miss++; else if (now >= v[1] + GAPS[v[0]] * 86400000) r.due++;
+  }
+  return r;
+}
+function showGate(){
+  show("gate"); var a = ri(12, 19), b = ri(3, 6); GATE = a * b;
+  $("gateQ").textContent = "Question pour les parents : combien font " + a + " × " + b + " ?";
+  $("gateIn").value = ""; $("gateMsg").textContent = ""; $("gateIn").focus();
+}
+function checkGate(){
+  if (Number($("gateIn").value.replace(/\s/g, "")) === GATE) showParent();
+  else { $("gateMsg").textContent = "Ce n’est pas la bonne réponse."; $("gateIn").select(); }
+}
+function twoStep(btn, label, confirmLabel, action){
+  btn.addEventListener("click", function(){
+    if (armed !== btn) {
+      armed = btn; btn.textContent = confirmLabel;
+      setTimeout(function(){ if (armed === btn) { armed = null; btn.textContent = label; } }, 4000);
+      return;
+    }
+    armed = null; action();
+  });
+}
+function showParent(){
+  show("parent"); var box = $("parentList"); box.innerHTML = ""; armed = null;
+  CHARS.forEach(function(c){
+    var p = DB.p[c.id], card = el("div", "card q"), head = el("div", "me"), av = el("span");
+    av.innerHTML = avatar(c); head.appendChild(av); head.appendChild(el("b", "", c.name)); card.appendChild(head);
+    if (!p || (!Object.keys(p.q).length && !Object.keys(p.s).length)) {
+      card.appendChild(el("p", "hint", "Aucune activité pour l’instant.")); box.appendChild(card); return;
+    }
+    var t = counts(p), total = 0; for (var k in p.s) total += p.s[k];
+    card.appendChild(el("p", "t", plural(total, "étoile") + " · " + plural(t.seen, "question") + " vue" + (t.seen > 1 ? "s" : "")));
+    card.appendChild(el("p", "", t.miss + " à revoir (ratées) · " + t.due + " à réviser (prêtes pour un rappel)"));
+    var list = el("div", "pl");
+    SHEETS.forEach(function(sh){
+      if (!sh.ready) return; var n = counts(p, sh.id); if (!n.seen) return;
+      list.appendChild(el("p", "", sh.title + " (" + sh.lvl + ") : " + stars(p.s[sh.id] || 0) + " · " + plural(n.seen, "question") + " vue" + (n.seen > 1 ? "s" : "") + " · " + n.miss + " à revoir"));
+    });
+    card.appendChild(list);
+    var rb = el("button", "again alt", "Remettre à zéro"); rb.type = "button";
+    twoStep(rb, "Remettre à zéro", "Confirmer : effacer " + c.name, function(){ delete DB.p[c.id]; saveDB(); showParent(); });
+    card.appendChild(rb); box.appendChild(card);
+  });
+}
+function tier(key){
+  var r = prof().q[key];
+  if (!r) return 1;
+  if (r[0] === 0) return 0;
+  return Date.now() >= r[1] + GAPS[r[0]] * 86400000 ? 2 : 3;
+}
+function pickItems(pool, keyOf, n){
+  return pool.map(function(x, i){ var k = keyOf(x, i); return {x:x, k:k, t:tier(k) + (used[k] ? 4 : 0) + Math.random() * 0.9}; })
+    .sort(function(a, b){ return a.t - b.t; }).slice(0, n);
+}
+function makeRound(){
+  var items = [];
+  var sts = storiesOf(cur), st = sts[0];
+  if (sts.length > 1) { st = sts.map(function(s){ var ts = s.reading.map(function(x){ var k = cur.id + "|" + x.q; return tier(k) + (used[k] ? 4 : 0); }); return {s:s, v:ts.reduce(function(a, b){ return a + b; }, 0) / ts.length + Math.random() * 0.3}; }).sort(function(a, b){ return a.v - b.v; })[0].s; }
+  pickItems(st.reading, function(x){ return cur.id + "|" + x.q; }, NREAD).forEach(function(o){ items.push({kind:"r", key:o.k, item:o.x, story:st}); });
+  pickItems(cur.math, function(x, i){ return cur.id + "|m" + i; }, NMATH).forEach(function(o){ items.push({kind:"m", key:o.k, gen:o.x}); });
+  return items;
+}
+function record(d, ok){
+  var q = prof().q, r = q[d.key] || [0, 0];
+  r[0] = ok ? Math.min(3, r[0] + 1) : 0; r[1] = Date.now(); q[d.key] = r; saveDB();
+  if (!ok) missed.push(d);
+}
+function finish(d, ok){
+  record(d, ok); if (ok) firstTry++; answered++; progress();
+}
+function stars(n){ return "★★★".slice(0, n) + "☆☆☆".slice(0, 3 - n); }
+function progress(){
+  $("fill").style.width = (TOTAL ? answered / TOTAL * 100 : 0) + "%";
+  $("bar").setAttribute("aria-valuemax", TOTAL); $("bar").setAttribute("aria-valuenow", answered);
+  $("count").textContent = answered + " sur " + TOTAL;
+  if (answered === TOTAL && TOTAL > 0) {
+    var plural = function(n){ return n + " question" + (n > 1 ? "s" : ""); };
+    if (isRetry) {
+      $("doneTitle").textContent = missed.length ? "Presque!" : "Bien joué!";
+      $("doneText").textContent = missed.length ? "Il en reste " + plural(missed.length) + " à revoir." : "Tu as réussi toutes les questions à revoir.";
+      $("stars").textContent = "";
+    } else {
+      var earned = firstTry === TOTAL ? 3 : (firstTry >= Math.ceil(TOTAL * 0.7) ? 2 : 1);
+      var p = prof(); p.s[cur.id] = Math.max(p.s[cur.id] || 0, earned); saveDB();
+      $("doneTitle").textContent = firstTry === TOTAL ? "Parfait! Tout du premier coup!" : "Bravo, tu as terminé!";
+      $("doneText").textContent = "Tu as réussi " + plural(firstTry) + " sur " + TOTAL + " du premier coup." + (missed.length ? " Tu peux revoir celles qui étaient plus difficiles." : "");
+      $("stars").textContent = stars(earned);
+    }
+    $("retry").hidden = missed.length === 0;
+    $("retry").textContent = "Revoir les questions ratées (" + missed.length + ")";
+    $("done").classList.add("show"); $("done").scrollIntoView({behavior:"smooth", block:"center"});
+  }
+}
+
+function showWho(){
+  show("who");
+  var list = $("whoList"); list.innerHTML = "";
+  CHARS.forEach(function(c){
+    var b = el("button", "tile ch"); b.type = "button"; b.innerHTML = avatar(c);
+    b.appendChild(el("b", "", c.name));
+    b.addEventListener("click", function(){ me = c.id; DB.last = me; saveDB(); showMenu(); });
+    list.appendChild(b);
+  });
+}
+function showMenu(){
+  show("menu");
+  var c = charOf(me); $("meIcon").innerHTML = avatar(c); $("meName").textContent = c.name;
+  var list = $("menuList"); list.innerHTML = "";
+  ["3e année", "2e année"].forEach(function(lvl){
+    list.appendChild(el("h2", "", lvl));
+    var grid = el("div", "menu");
+    SHEETS.filter(function(x){ return x.lvl === lvl; }).forEach(function(sh){
+      var b = el("button", "tile"); b.type = "button"; b.disabled = !sh.ready;
+      var tx = el("span"); tx.appendChild(el("b", "", sh.title));
+      var best = prof().s[sh.id] || 0;
+      tx.appendChild(el("small", best ? "st" : "", !sh.ready ? "Bientôt" : (best ? stars(best) : "Lecture et mathématique")));
+      b.appendChild(el("span", "ic", sh.icon)); b.appendChild(tx);
+      b.addEventListener("click", function(){ cur = sh; used = {}; start(makeRound(), false); show("sheet"); });
+      grid.appendChild(b);
+    });
+    list.appendChild(grid);
+  });
+}
+
+function start(items, retry){
+  var rd = $("reading"), mh = $("math");
+  rd.innerHTML = ""; mh.innerHTML = ""; round = items; isRetry = retry; TOTAL = items.length;
+  answered = 0; firstTry = 0; missed = []; $("done").classList.remove("show");
+  $("title").textContent = cur.title; $("lvl").textContent = (retry ? "Questions à revoir · " : "Lecture et mathématique · ") + cur.lvl; var first = items.filter(function(d){ return d.kind === "r"; })[0], st = first ? first.story : storiesOf(cur)[0];
+  $("story").textContent = st.text; var spk = $("spkStory"); spk.hidden = !SPEECH; spk.onclick = function(){ speak(st.text, spk); }; document.querySelector(".card.story").style.display = first ? "" : "none";
+  $("pic").innerHTML = cur.svg.replace("<svg ", '<svg role="img" aria-label="' + cur.label + '" ');
+  var nr = 0, nm = 0, n = 0;
+  items.forEach(function(d){ if (d.kind === "r") nr++; else nm++; });
+  $("readHead").hidden = nr === 0; $("mathHead").hidden = nm === 0;
+  items.forEach(function(d){
+    used[d.key] = 1; n++;
+    if (d.kind === "r") rd.appendChild(readingCard(d, n)); else mh.appendChild(mathCard(d, n));
+  });
+  progress();
+}
+function readingCard(d, n){
+  var item = d.item, box = el("div", "card q"), wrong = false, grid = null;
+  box.appendChild(qTitle(n, item.q, function(){ var t = item.q; if (grid) Array.prototype.forEach.call(grid.children, function(b){ t += ". " + b.textContent; }); return t; }));
+  grid = el("div", "choices"); var msg = el("p", "msg"); msg.setAttribute("aria-live", "polite");
+  shuffle([item.a].concat(item.w)).forEach(function(txt){
+    var b = el("button", "choice", txt); b.type = "button";
+    b.addEventListener("click", function(){
+      if (txt === item.a) {
+        b.classList.add("ok");
+        Array.prototype.forEach.call(grid.children, function(c){ c.disabled = true; });
+        msg.className = "msg ok"; msg.textContent = "Bravo! C’est la bonne réponse.";
+        finish(d, !wrong);
+      } else {
+        wrong = true; b.classList.add("no"); b.disabled = true;
+        msg.className = "msg no"; msg.textContent = "Pas tout à fait. Relis l’histoire et essaie encore!";
+      }
+    });
+    grid.appendChild(b);
+  });
+  box.appendChild(grid); box.appendChild(msg);
+  return box;
+}
+function mathCard(d, n){
+  var item = d.gen(), tries = 0, box = el("div", "card q");
+  box.appendChild(qTitle(n, item.q, function(){ return item.q; }));
+  var row = el("div", "row"), inp = el("input"), btn = el("button", "go", "Vérifier");
+  inp.type = "text"; inp.inputMode = "numeric"; inp.autocomplete = "off"; inp.setAttribute("aria-label", "Ta réponse à la question " + n);
+  btn.type = "button";
+  var msg = el("p", "msg"), hint = el("p", "hint"); msg.setAttribute("aria-live", "polite");
+  function check(){
+    if (inp.disabled) return;
+    var v = inp.value.replace(/\s/g, "");
+    if (v === "") { msg.className = "msg no"; msg.textContent = "Écris ta réponse d’abord."; return; }
+    if (Number(v) === item.a) {
+      inp.disabled = true; btn.disabled = true; msg.className = "msg ok"; msg.textContent = "Bravo! " + item.a + ", c’est exact.";
+      hint.textContent = ""; finish(d, tries === 0);
+    } else {
+      tries++; msg.className = "msg no"; msg.textContent = "Pas encore. Essaie encore!";
+      if (tries >= 2) hint.textContent = "Indice : " + item.hint;
+      inp.select();
+    }
+  }
+  btn.addEventListener("click", check);
+  inp.addEventListener("keydown", function(e){ if (e.key === "Enter") check(); });
+  row.appendChild(inp); row.appendChild(btn);
+  box.appendChild(row); box.appendChild(msg); box.appendChild(hint);
+  return box;
+}
+
+$("again").addEventListener("click", function(){ start(makeRound(), false); window.scrollTo({top:0, behavior:"smooth"}); });
+$("retry").addEventListener("click", function(){ start(missed.slice(), true); window.scrollTo({top:0, behavior:"smooth"}); });
+$("back").addEventListener("click", showMenu);
+$("menu2").addEventListener("click", showMenu);
+$("chg").addEventListener("click", showWho);
+$("parentLink").addEventListener("click", showGate);
+$("parentLink2").addEventListener("click", showGate);
+$("gateGo").addEventListener("click", checkGate);
+$("gateIn").addEventListener("keydown", function(e){ if (e.key === "Enter") checkGate(); });
+$("gateBack").addEventListener("click", function(){ if (me) showMenu(); else showWho(); });
+$("parentBack").addEventListener("click", function(){ if (me) showMenu(); else showWho(); });
+twoStep($("wipeAll"), "Tout effacer", "Confirmer : tout effacer", function(){ DB.p = {}; saveDB(); showParent(); });
+if (DB.last && charOf(DB.last)) { me = DB.last; showMenu(); } else { showWho(); }
+</script>
+</body>
+</html>
